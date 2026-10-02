@@ -69,7 +69,11 @@ body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Cha
 .fundtop{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}.fundtop small{display:block;color:var(--ink-dim);font-size:12.5px}.fundtop em{font-style:normal;color:var(--gold);font-weight:700;font-size:17px}
 .fbar{display:block;height:12px;border-radius:6px;background:#17404C;overflow:hidden;margin:8px 0 10px;box-shadow:inset 0 0 0 2px #0A1418}.fbar s{display:block;height:100%;background:linear-gradient(90deg,#3FC1A8,#F2C14E)}
 .fbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.fbtns button,.ebtn,#econov .frow button{font:600 13px "Chakra Petch",sans-serif;border:0;border-radius:6px;padding:8px 6px;background:var(--gold);color:#3B2A05;cursor:pointer}.fbtns button:disabled{background:#2A3F48;color:#7E9299;cursor:not-allowed}
-.ebtn{background:#23414C;color:var(--ink)}#econov .frow{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}#econov .frow button:not(.primary){background:#23414C;color:var(--ink)}
+.ebtn{background:#23414C;color:var(--ink)}
+#layBar{position:absolute;top:8px;left:8px;right:8px;z-index:10;padding:8px 10px;font:13px "Chakra Petch",sans-serif;color:var(--ink);max-height:48dvh;overflow:auto}#game.layedit .hud{display:none}
+#layBar .lbrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:3px 0}#layBar small{color:var(--ink-dim)}#layBar summary{cursor:pointer;margin-top:4px}
+#layBar button{font:600 12px "Chakra Petch",sans-serif;border:0;border-radius:6px;padding:6px 8px;background:#23414C;color:var(--ink);cursor:pointer}#layBar button.primary{background:var(--gold);color:#3B2A05}
+#layBar input:not([type=checkbox]){font:12px "Chakra Petch",sans-serif;padding:5px 6px;border-radius:5px;border:1px solid var(--rim);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 140px}#econov .frow{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}#econov .frow button:not(.primary){background:#23414C;color:var(--ink)}
 .ulist{display:grid;gap:4px}.uitem{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;background:#1B313B;border-radius:6px;padding:6px 10px;font-size:13.5px}.uitem span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#23414C;font-size:11px}.uitem em{font-style:normal;color:var(--ink-dim)}
 .uitem.done span{background:#3FC1A8;color:#0A1418}.uitem.done{opacity:.75}.uitem.next{box-shadow:inset 0 0 0 2px var(--gold)}
 #econov .ovbox{display:flex;flex-direction:column;max-height:calc(100% - 24px);max-height:calc(100dvh - 24px);overflow:hidden}#econBody{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}#econov .ehead{display:flex;gap:6px}#econSaveTop{font:600 13px 'Chakra Petch',sans-serif;border:0;border-radius:6px;padding:6px 12px;background:var(--gold);color:#3B2A05;cursor:pointer}#econov .frow{flex:none;padding-top:10px;margin-top:6px;border-top:1px solid #1B313B;background:inherit}
@@ -316,13 +320,23 @@ kbd{font-family:"Chakra Petch",sans-serif;font-weight:600;background:#23414C;col
   </section>
   <div id="stick" aria-hidden="true"><div id="knob"></div></div>
   <button id="btnA" type="button" aria-label="คุยหรือตรวจสอบ">A</button>
+  <div id="layBar" class="panel" hidden role="toolbar" aria-label="จัดวางแผนที่">
+    <div class="lbrow"><b>จัดวางแผนที่</b><small id="layStat"></small></div>
+    <div class="lbrow"><small id="layInfo"></small></div>
+    <div class="lbrow"><button id="layHideBtn" type="button">ซ่อน/แสดง</button><button id="layResetOne" type="button">คืนที่เดิม</button><button id="layUndo" type="button">ย้อนกลับ</button>
+      <label><input type="checkbox" id="layDec"> ลากลายพื้นได้</label><button id="layExport" type="button">ดาวน์โหลด layout.json</button><button id="layImport" type="button">นำเข้าไฟล์</button><input type="file" id="layFile" accept=".json,application/json" hidden>
+      <button id="layDiscard" type="button">ทิ้งร่าง</button><button id="layExit" type="button" class="primary">ออก</button></div>
+    <details><summary>เผยแพร่ขึ้น GitHub (deploy อัตโนมัติ)</summary><div class="lbrow"><input id="layRepo" placeholder="owner/repo" autocomplete="off"><input id="layBranch" placeholder="main" autocomplete="off"><input id="layTok" type="password" placeholder="GitHub token (Contents: Read and write)" autocomplete="off"><button id="layPush" type="button" class="primary">เผยแพร่</button></div>
+      <small>token เก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น ใช้ fine-grained token ที่ให้สิทธิ์เฉพาะ repo นี้</small></details>
+    <small id="layMsg" aria-live="polite"></small>
+  </div>
   <div id="mapov" hidden role="dialog" aria-label="แผนที่ Midway">
     <div class="mapbox panel">
       <div class="maphead"><div><b>แผนที่ Midway</b><small>โซนที่ยังไม่ได้สำรวจจะขึ้นเป็น ???</small></div><button id="mapClose" type="button">ปิด</button></div>
       <div class="mapwrap"><canvas id="mm" aria-hidden="true"></canvas><div id="mlabels"></div><i id="mmdot"></i></div>
       <div class="setrow"><label>เวลา <select id="setTime"><option value="auto">ตามเวลาจริง</option><option value="day">กลางวัน</option><option value="sunset">เย็น</option><option value="night">กลางคืน</option></select></label>
       <label>อากาศ <select id="setWeather"><option value="auto">ตามฤดู</option><option value="clear">แดด</option><option value="rain">ฝนตก</option></select></label></div>
-      <div class="setrow"><button id="btnEcon" type="button" class="ebtn">ตั้งค่าเศรษฐกิจเกม</button></div>
+      <div class="setrow"><button id="btnEcon" type="button" class="ebtn">ตั้งค่าเศรษฐกิจเกม</button><button id="btnLayout" type="button" class="ebtn">จัดวางแผนที่ (แอดมิน)</button></div>
       <div class="setrow"><label>เพลง <input type="range" id="volMusic" min="0" max="100"></label><label>เสียงเอฟเฟกต์ <input type="range" id="volSfx" min="0" max="100"></label></div>
       <label class="perfrow"><input type="checkbox" id="perfChk"> แสดงค่าประสิทธิภาพบนจอ</label>
     </div>
@@ -908,7 +922,7 @@ function paintTile(g,tx,ty,px,py){
 function paintShadow(g,o){if(o.ell){pell(g,o.x+o.ell[0],o.base-2,o.ell[1],o.ell[2],'rgba(16,40,20,.28)');return}if(o.tree)pell(g,o.x+21,o.base-2,13,4,'rgba(16,40,20,.28)');else if(o.img.width>40)R(g,'rgba(16,40,20,.22)',o.x+6,o.base-3,o.img.width-4,6);else pell(g,o.x+(o.img.width>>1)+1,o.base-1,o.img.width>>1,2,'rgba(16,40,20,.25)')}
 function paintChunk(cx,cy){const [c,g]=cv(CPX,CPX);const x0=cx*CPX,y0=cy*CPX;
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++)paintTile(g,tx,ty,tx*T-x0,ty*T-y0);
-  for(const d of DEC)if(d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img,d.x-x0,d.y-y0);
+  for(const d of DEC)if(!d.hide&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img,d.x-x0,d.y-y0);
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty),px=tx*T-x0,py=ty*T-y0;
     if(HGT[i]){R(g,'rgba(255,250,210,.07)',px,py,T,T);if(tx>0&&!HGT[idx(tx-1,ty)])R(g,'rgba(0,0,0,.12)',px,py,2,T);if(tx<MW-1&&!HGT[idx(tx+1,ty)]){R(g,'rgba(0,0,0,.18)',px+13,py,3,T);R(g,'rgba(0,0,0,.08)',px+16,py,3,T)}}
     const rock=(h,lip)=>{const r=trng(tx,ty,13);R(g,'#8A7660',px,py,T,h);
@@ -2755,6 +2769,95 @@ $('econBody').addEventListener('click',e=>{const b=e.target.closest&&e.target.cl
 $('econSave').addEventListener('click',()=>{for(const el of document.querySelectorAll('#econBody [data-adm]')){const v=Math.max(0,Math.floor(+el.value||0));S[el.dataset.adm]=v}renderStats();refreshHouses();saveNow();for(const el of document.querySelectorAll('#econBody input[data-k]')){const f=ECON_FIELDS.find(q=>q[0]===el.dataset.k);let v=+el.value;if(!isFinite(v))continue;v=Math.max(f[2],Math.min(f[3],v));CFG[f[0]]=v}try{localStorage.setItem('midway-quest-econ',JSON.stringify(CFG))}catch(e){}closeEcon();pop('บันทึกการตั้งค่าแล้ว','#6FE6C4')});
 $('econReset').addEventListener('click',()=>{Object.assign(CFG,CFG_DEF);try{localStorage.removeItem('midway-quest-econ')}catch(e){}openEcon()});
 $('econClose').addEventListener('click',closeEcon);$('econSaveTop').addEventListener('click',()=>$('econSave').click());$('btnEcon').addEventListener('click',()=>{closeMap();openEcon()});
+
+/* ================= map layout editor (admin): drag objects, publish layout.json ================= */
+// layout.json: {v:1,obj:{key:[x,base]|0},dec:{key:[x,y]|0}}  (0 = hidden). key = original "x,base,width" of an
+// OBJ entry or "x,y,width" of a DEC ground decal, so keys stay valid as long as the code that places it is unchanged.
+// Players load the published game/layout.json; the editor keeps an unpublished draft in localStorage.
+const LAY={on:false,sel:null,drag:null,undo:[],data:{v:1,obj:{},dec:{}},pub:{v:1,obj:{},dec:{}},K:new Map(),KD:new Map(),orphans:0};
+const LAY_DRAFT='midway-quest-layout-draft',LAY_GH='midway-quest-gh';
+function layBucket(o){const bx=Math.max(0,Math.min(BNX-1,Math.floor((o.x+o.img.width/2)/BS))),by=Math.max(0,Math.min(BNY-1,Math.floor(o.base/BS)));return buckets[by*BNX+bx]}
+{const free=it=>{const d=Object.getOwnPropertyDescriptor(it,'x');return d&&'value' in d};
+  const items=[...INT.filter(free),...DOORS,...npcs.filter(n=>n.still&&free(n))],owner=new Map();
+  for(const o of OBJ){if(!o.img)continue;let k=Math.round(o.x)+','+Math.round(o.base)+','+o.img.width;while(LAY.K.has(k))k+='+';LAY.K.set(k,o);o.lk=k;
+    o.l0={x:o.x,y:o.y,base:o.base,tx:o.tx,ty:o.ty,tb:o.tb};o.att=[];
+    const [x0,y0,x1,y1]=o.tree?[o.tx,o.ty,o.tx,o.ty]:o.tb?o.tb:[Math.floor((o.x+o.img.width*.2)/T),Math.floor((o.base-1)/T),Math.floor((o.x+o.img.width*.8)/T),Math.floor((o.base-1)/T)];
+    o.fp0=[];for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(inB(x,y)&&SOL[idx(x,y)])o.fp0.push([x,y]);o.fp=o.fp0;
+    if(o.light){const l=LIGHTS.find(q=>q.x===o.x+6&&q.y===o.y+7);if(l)o.att.push(l)}
+    if(o.tree||o.img.width<20)continue;
+    for(const it of items){if(it.x<o.x+2||it.x>o.x+o.img.width-2||it.y<o.base-6||it.y>o.base+22)continue;const d=Math.abs(it.x-(o.x+o.img.width/2))+Math.abs(it.y-o.base),p=owner.get(it);if(!p||d<p.d)owner.set(it,{o,d})}}
+  for(const [it,{o}] of owner)o.att.push(it);
+  for(const d of DEC){let k=Math.round(d.x)+','+Math.round(d.y)+','+d.img.width;while(LAY.KD.has(k))k+='+';LAY.KD.set(k,d);d.lk=k;d.l0={x:d.x,y:d.y}}}
+function laySetO(o,x,b,hide){if(!o.hide){for(const [tx,ty] of o.fp)SOL[idx(tx,ty)]=0;const B=layBucket(o),i=B.indexOf(o);if(i>=0)B.splice(i,1)}
+  const dx=x-o.x,dy=b-o.base;o.x=x;o.y+=dy;o.base=b;for(const a of o.att){a.x+=dx;a.y+=dy;if(a.home){a.home.x+=dx;a.home.y+=dy}}
+  const tdx=Math.round((x-o.l0.x)/T),tdy=Math.round((b-o.l0.base)/T);o.fp=o.fp0.map(([tx,ty])=>[tx+tdx,ty+tdy]).filter(([tx,ty])=>inB(tx,ty));
+  if(o.tree){o.tx=o.l0.tx+tdx;o.ty=o.l0.ty+tdy}if(o.l0.tb)o.tb=[o.l0.tb[0]+tdx,o.l0.tb[1]+tdy,o.l0.tb[2]+tdx,o.l0.tb[3]+tdy];
+  o.hide=hide?1:0;if(!hide){for(const [tx,ty] of o.fp)SOL[idx(tx,ty)]=1;layBucket(o).push(o)}}
+function laySetD(d,x,y,hide){d.x=x;d.y=y;d.hide=hide?1:0}
+function laySet(s,x,y,hide){if(s.t==='o')laySetO(s.o,x,y,hide);else laySetD(s.o,x,y,hide)}
+const layPos=s=>[s.o.x,s.t==='o'?s.o.base:s.o.y];
+function layApply(d){d=d&&typeof d==='object'?d:{};
+  for(const k in LAY.data.obj){const o=LAY.K.get(k);if(o)laySetO(o,o.l0.x,o.l0.base,false)}for(const k in LAY.data.dec){const o=LAY.KD.get(k);if(o)laySetD(o,o.l0.x,o.l0.y,false)}
+  LAY.data={v:1,obj:{},dec:{}};LAY.orphans=0;
+  for(const [m,K,t] of [[d.obj,LAY.K,'o'],[d.dec,LAY.KD,'d']])for(const k in (m||{})){const o=K.get(k),v=m[k];if(!o||!(v===0||(Array.isArray(v)&&isFinite(v[0])&&isFinite(v[1])))){LAY.orphans++;continue}
+    if(v===0)laySet({t,o},...layPos({t,o}),true);else laySet({t,o},Math.round(v[0]),Math.round(v[1]),false);LAY.data[t==='o'?'obj':'dec'][k]=v===0?0:[Math.round(v[0]),Math.round(v[1])]}
+  chunkCache.clear()}
+function layRec(s){const o=s.o,m=s.t==='o'?LAY.data.obj:LAY.data.dec,[x,y]=layPos(s),home=x===o.l0.x&&y===(s.t==='o'?o.l0.base:o.l0.y);
+  if(home&&!o.hide)delete m[o.lk];else m[o.lk]=o.hide?0:[x,y];try{localStorage.setItem(LAY_DRAFT,JSON.stringify(LAY.data))}catch(e){}layInfo()}
+function layJSON(d){const sec=m=>{const ks=Object.keys(m).sort();return '{'+ks.map(k=>'\n  '+JSON.stringify(k)+':'+JSON.stringify(m[k])).join(',')+(ks.length?'\n }':'}')};return '{\n "v":1,\n "obj":'+sec(d.obj)+',\n "dec":'+sec(d.dec)+'\n}\n'}
+function layHidden(){const out=[];for(const k in LAY.data.obj)if(LAY.data.obj[k]===0&&LAY.K.get(k))out.push(LAY.K.get(k));return out}
+function layAlpha(img,x,y){try{return img.getContext('2d').getImageData(x|0,y|0,1,1).data[3]>16}catch(e){return true}}
+function layHit(wx,wy){let best=null,bb=-1e9;const test=o=>{if(wx<o.x||wy<o.y||wx>=o.x+o.img.width||wy>=o.y+o.img.height||o.base<=bb||!layAlpha(o.img,wx-o.x,wy-o.y))return;bb=o.base;best=o};
+  eachObj(wx-260,wy-20,wx+260,wy+280,test);for(const o of layHidden())test(o);if(best)return {t:'o',o:best};
+  if($('layDec').checked){let bd=null,ba=1e12;for(const d of DEC){if(wx<d.x||wy<d.y||wx>=d.x+d.img.width||wy>=d.y+d.img.height)continue;const a=d.img.width*d.img.height;if(a<ba){ba=a;bd=d}}if(bd)return {t:'d',o:bd}}return null}
+function layMsg(t){$('layMsg').textContent=t||''}
+function layInfo(){const s=LAY.sel,n=Object.keys(LAY.data.obj).length+Object.keys(LAY.data.dec).length,dirty=JSON.stringify(LAY.data)!==JSON.stringify(LAY.pub);
+  let t='คลิกเลือกของแล้วลากไปวาง · ลากที่ว่างเพื่อเลื่อนกล้อง · Delete ซ่อน · ลูกศรขยับทีละช่อง · Ctrl+Z ย้อนกลับ · กด Alt ค้างขณะลากเพื่อวางละเอียดทีละพิกเซล';
+  if(s){const o=s.o,kind=s.t==='d'?'ลายพื้น':o.tree?'ต้นไม้':o.tb?'อาคาร':o.img.width<=20&&o.img.height<=20?'พุ่มไม้/ของเล็ก':'วัตถุ';const [x,y]=layPos(s);
+    t=kind+' · tile '+Math.floor((x+(s.t==='o'?o.img.width/2:0))/T)+','+Math.floor((y-(s.t==='o'?1:0))/T)+(o.hide?' · ซ่อนอยู่':'')+(o.att&&o.att.length?' · ย้ายพร้อมจุดกด/ประตู '+o.att.length+' จุด':'')+(o.tb?' · ระวัง: ของประกอบบางอย่างของอาคารอาจไม่ย้ายตาม':'')}
+  $('layInfo').textContent=t;$('layStat').textContent='แก้ไว้ '+n+' ชิ้น'+(dirty?' · มีร่างที่ยังไม่เผยแพร่':' · ตรงกับที่เผยแพร่แล้ว')+(LAY.orphans?' · ข้าม '+LAY.orphans+' รายการที่หาของไม่เจอ':'')}
+function layDo(s,x,y,hide){const [px,py]=layPos(s);LAY.undo.push({s,x:px,y:py,hide:s.o.hide});if(LAY.undo.length>200)LAY.undo.shift();laySet(s,x,y,hide);layRec(s);chunkCache.clear()}
+function layOpen(){if(scene!=='town')return pop('ใช้ได้เฉพาะในเมือง','#B9C4C9');closeMap();LAY.on=true;LAY.sel=null;LAY.undo=[];game.classList.add('layedit');$('layBar').hidden=false;cvs.style.touchAction='none';
+  let d=null;try{d=JSON.parse(localStorage.getItem(LAY_DRAFT)||'null')}catch(e){}layApply(d||LAY.pub);
+  let g={};try{g=JSON.parse(localStorage.getItem(LAY_GH)||'{}')||{}}catch(e){}$('layRepo').value=g.repo||'nullca/pixel';$('layBranch').value=g.branch||'main';$('layTok').value=g.tok||'';layMsg(d?'โหลดร่างที่ยังไม่เผยแพร่':'');layInfo()}
+function layClose(){LAY.on=false;LAY.sel=null;LAY.drag=null;game.classList.remove('layedit');$('layBar').hidden=true;cvs.style.touchAction='';layApply(LAY.pub)}
+cvs.addEventListener('pointerdown',e=>{if(!LAY.on)return;e.stopImmediatePropagation();e.preventDefault();const [wx,wy]=toWorld(e),s=layHit(wx,wy);LAY.sel=s;layInfo();try{cvs.setPointerCapture(e.pointerId)}catch(err){}
+  LAY.drag=s?{s,wx,wy,p:layPos(s),from:[...layPos(s)],moved:false}:{pan:1,cx:e.clientX,cy:e.clientY,px:player.x,py:player.y}},true);
+cvs.addEventListener('pointermove',e=>{if(!LAY.on)return;e.stopImmediatePropagation();const g=LAY.drag;if(!g){const [wx,wy]=toWorld(e);cvs.style.cursor=layHit(wx,wy)?'grab':'default';return}
+  if(g.pan){player.x=Math.max(8,Math.min(WW-8,g.px-(e.clientX-g.cx)/scale));player.y=Math.max(8,Math.min(WH-8,g.py-(e.clientY-g.cy)/scale));return}
+  const [wx,wy]=toWorld(e),o=g.s.o,y0=g.s.t==='o'?o.l0.base:o.l0.y;let x=g.p[0]+wx-g.wx,y=g.p[1]+wy-g.wy;
+  if(!e.altKey){x=o.l0.x+Math.round((x-o.l0.x)/T)*T;y=y0+Math.round((y-y0)/T)*T}else{x=Math.round(x);y=Math.round(y)}
+  const [cx,cy]=layPos(g.s);if(x===cx&&y===cy)return;g.moved=true;laySet(g.s,x,y,o.hide);if(g.s.t==='d')chunkCache.clear();cvs.style.cursor='grabbing'},true);
+function layUp(e){if(!LAY.on)return;e.stopImmediatePropagation();const g=LAY.drag;LAY.drag=null;if(!g||g.pan||!g.moved)return;
+  LAY.undo.push({s:g.s,x:g.from[0],y:g.from[1],hide:g.s.o.hide});layRec(g.s);chunkCache.clear()}
+cvs.addEventListener('pointerup',layUp,true);cvs.addEventListener('pointercancel',layUp,true);
+addEventListener('keydown',e=>{if(!LAY.on||/^(INPUT|TEXTAREA|SELECT)$/.test((e.target&&e.target.tagName)||''))return;const s=LAY.sel,k=e.key;
+  if((e.ctrlKey||e.metaKey)&&(k==='z'||k==='Z')){e.preventDefault();e.stopImmediatePropagation();$('layUndo').click();return}
+  if(!s)return;const D={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[k];
+  if(D){e.preventDefault();e.stopImmediatePropagation();const st=e.altKey?1:T,[x,y]=layPos(s);layDo(s,x+D[0]*st,y+D[1]*st,s.o.hide);return}
+  if(k==='Delete'||k==='Backspace'){e.preventDefault();e.stopImmediatePropagation();$('layHideBtn').click()}else if(k==='Escape'){e.stopImmediatePropagation();LAY.sel=null;layInfo()}},true);
+HOOKS.top.push(()=>{if(!LAY.on||scene!=='town')return;ctx.save();
+  for(const o of layHidden()){if(o.x>cam.x+cw||o.x+o.img.width<cam.x||o.y>cam.y+ch||o.base<cam.y)continue;ctx.globalAlpha=.35;ctx.drawImage(o.img,SNP(o.x-cam.x),SNP(o.y-cam.y));ctx.globalAlpha=1;ctx.setLineDash([3,3]);ctx.strokeStyle='#E2534A';ctx.lineWidth=1;ctx.strokeRect(SNP(o.x-cam.x)+.5,SNP(o.y-cam.y)+.5,o.img.width-1,o.img.height-1);ctx.setLineDash([])}
+  const s=LAY.sel;if(s){const o=s.o;if(s.t==='o'){ctx.fillStyle='rgba(226,83,74,.35)';for(const [tx,ty] of o.fp)ctx.fillRect(tx*T-cam.x,ty*T-cam.y,T,T)}
+    ctx.strokeStyle='#F2C14E';ctx.lineWidth=2/scale;ctx.strokeRect(SNP(o.x-cam.x),SNP(o.y-cam.y),o.img.width,o.img.height)}ctx.restore()});
+$('btnLayout').addEventListener('click',layOpen);$('layExit').addEventListener('click',layClose);
+$('layHideBtn').addEventListener('click',()=>{const s=LAY.sel;if(!s)return layMsg('เลือกของก่อน');layDo(s,...layPos(s),!s.o.hide)});
+$('layResetOne').addEventListener('click',()=>{const s=LAY.sel;if(!s)return layMsg('เลือกของก่อน');layDo(s,s.o.l0.x,s.t==='o'?s.o.l0.base:s.o.l0.y,false)});
+$('layUndo').addEventListener('click',()=>{const u=LAY.undo.pop();if(!u)return layMsg('ไม่มีอะไรให้ย้อนกลับ');laySet(u.s,u.x,u.y,u.hide);LAY.sel=u.s;layRec(u.s);chunkCache.clear()});
+$('layExport').addEventListener('click',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([layJSON(LAY.data)],{type:'application/json'}));a.download='layout.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);layMsg('ดาวน์โหลดแล้ว นำไปวางทับ game/layout.json ใน repo แล้ว push เข้า main')});
+$('layImport').addEventListener('click',()=>$('layFile').click());
+$('layFile').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;f.text().then(t=>{const d=JSON.parse(t);if(!d||typeof d!=='object')throw 0;layApply(d);LAY.undo=[];LAY.sel=null;try{localStorage.setItem(LAY_DRAFT,JSON.stringify(LAY.data))}catch(err){}layMsg('นำเข้าแล้ว (เป็นร่าง ยังไม่เผยแพร่)');layInfo()}).catch(()=>layMsg('ไฟล์ไม่ถูกต้อง'));e.target.value=''});
+$('layDiscard').addEventListener('click',()=>{if(!confirm('ทิ้งร่างแล้วกลับไปใช้ผังที่เผยแพร่อยู่?'))return;try{localStorage.removeItem(LAY_DRAFT)}catch(e){}layApply(LAY.pub);LAY.undo=[];LAY.sel=null;layMsg('กลับไปใช้ผังที่เผยแพร่แล้ว');layInfo()});
+$('layPush').addEventListener('click',async()=>{const repo=$('layRepo').value.trim(),br=$('layBranch').value.trim()||'main',tok=$('layTok').value.trim();
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo)||!tok)return layMsg('กรอก repo (owner/repo) และ token ก่อน');try{localStorage.setItem(LAY_GH,JSON.stringify({repo,branch:br,tok}))}catch(e){}
+  const api='https://api.github.com/repos/'+repo+'/contents/game/layout.json',h={Authorization:'Bearer '+tok,Accept:'application/vnd.github+json'};layMsg('กำลังบันทึกขึ้น GitHub...');
+  try{let sha;const g=await fetch(api+'?ref='+encodeURIComponent(br),{headers:h,cache:'no-store'});if(g.ok)sha=(await g.json()).sha;else if(g.status!==404)throw new Error('อ่านไฟล์เดิมไม่ได้ ('+g.status+') ตรวจ token และสิทธิ์ Contents');
+    const body={message:'map: update layout.json from map editor',content:btoa(unescape(encodeURIComponent(layJSON(LAY.data)))),branch:br};if(sha)body.sha=sha;
+    const p=await fetch(api,{method:'PUT',headers:h,body:JSON.stringify(body)});if(!p.ok)throw new Error('บันทึกไม่สำเร็จ ('+p.status+')');
+    LAY.pub=JSON.parse(JSON.stringify(LAY.data));try{localStorage.removeItem(LAY_DRAFT)}catch(e){}layMsg('บันทึกแล้ว GitHub Actions จะ deploy ขึ้นเว็บภายใน 1–2 นาที');layInfo()}catch(e){layMsg(e.message||'บันทึกไม่สำเร็จ')}});
+if(typeof fetch==='function'&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol))
+  fetch('layout.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d==='object'){LAY.pub={v:1,obj:d.obj||{},dec:d.dec||{}};if(!LAY.on)layApply(LAY.pub)}}).catch(()=>{});
+if(typeof location!=='undefined'&&/[?&]edit\b/.test(location.search||''))setTimeout(layOpen,1200);
 
 /* ================= retention: mailbox, login calendar, season pass, level rewards, story ================= */
 S.mail=Array.isArray(S.mail)?JSON.parse(JSON.stringify(S.mail)):[];S.login=S.login||{last:null,streak:0};S.story=S.story||{ch:0,step:0,done:[]};if(S.lvRewarded==null)S.lvRewarded=S.lv;
