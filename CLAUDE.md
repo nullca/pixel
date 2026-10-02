@@ -62,6 +62,7 @@ Hidden objects stay in `OBJ` (flag `o.hide`); never splice `OBJ` from the editor
 Sprites are drawn in code, but any canvas wrapped in `artReg('name', makeX())` can be replaced by a PNG listed in
 `game/assets/manifest.json` (`{"name": "set/file.png"}`). The PNG is painted into the existing canvas, so it **must keep the
 original sprite size** (positions, collisions and `layout.json` stay valid). `?art=0` shows the code-drawn art for comparison.
+**HD (2x) art:** ground chunks are painted at 2x when the HD grass set (`grass_1`, assets/T01_grass, 32px tiles) is present, so 32px PNG tiles keep full detail; new art should be 2x the sprite size (see the HD prompt packs).
 Ground tiles are separate: `TILE_ART` maps ground type → `tile_<name>` (+ `_edge_<nw|n|…|inner_se>` where it meets grass), drawn by `tileArt()` in `paintTile`; cliffs/stairs stay code-drawn.
 Loaded over http(s) only. To add a set: copy PNGs to `game/assets/<set>/`, add `artReg` at the sprite's creation site, list it in the manifest.
 
