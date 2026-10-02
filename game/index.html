@@ -688,9 +688,9 @@ function makeArena(){const S=336,h=168;const [c,x]=cv(S,S);
 /* ---------- objects + spatial buckets ---------- */
 const OBJ=[];
 const add=(o)=>{OBJ.push(o);return o};
-add({img:artReg('hq',makeHQ()),x:FX-121,y:42*T-149,base:42*T,mm:'#2B8878',tb:[56,34,70,41]});mark(SOL,56,36,70,41);mark(OCC,55,32,72,43);mark(SOL,56,42,59,43);mark(SOL,68,42,71,43);
+add({img:artReg('hq',makeHQ()),x:FX-121,y:42*T-149,base:42*T,mm:'#2B8878',tb:[56,34,70,41]});mark(SOL,56,36,70,41);mark(OCC,55,32,72,43);
 add({img:artReg('library',makeLibrary()),x:12*T-1,y:16*T-97,base:16*T,mm:'#5E4DA8',tb:[12,11,20,15]});mark(SOL,12,12,20,15);mark(OCC,11,8,21,16);
-add({img:artReg('house_edu',makeHouse('#5E4DA8','#453789','EDU')),x:26*T-1,y:20*T-79,base:20*T,mm:'#5E4DA8',tb:[26,16,30,19]});mark(SOL,26,18,30,19);mark(OCC,25,14,31,20);mark(SOL,21,21,24,22);mark(OCC,20,20,25,23);
+add({img:artReg('house_edu',makeHouse('#5E4DA8','#453789','EDU')),x:26*T-1,y:20*T-79,base:20*T,mm:'#5E4DA8',tb:[26,16,30,19]});mark(SOL,26,18,30,19);mark(OCC,25,14,31,20);mark(OCC,20,20,25,23);
 const HOUSES=[['IT','#3A7BD5','#2A5DA6',90,41,'บ้านแผนก IT','สมาชิกแผนก IT ช่วยกันแต่งบ้านหลังนี้ ยิ่งทำเควสต์ครบ บ้านยิ่งได้ของตกแต่งใหม่'],
   ['HR','#1D9E75','#157A5B',101,39,'บ้านแผนก HR','บ้านของทีม HR ตอนนี้มีสวนดอกไม้เล็กๆ ที่ได้จากเควสต์เมื่อเดือนก่อน'],
   ['FIN','#F29B38','#D07A1E',112,39,'บ้านแผนก FIN','บ้านทีมการเงิน หน้าต่างสะอาดเป๊ะ ทุกอย่างเรียงเป็นระเบียบเหมือนงบดุล'],
@@ -922,8 +922,10 @@ const DEC=[];
   const [mc,m]=cv(S,S);pcirc(m,h,h,180,'#000');m.globalCompositeOperation='source-in';m.drawImage(pc,0,0);
   const [dc,d]=cv(S,S);pcirc(d,h,h,184,'#9C8D70');pcirc(d,h,h,182,'#B9AB8E');d.drawImage(mc,0,0);for(let a=0;a<360;a+=1.5){const r=a*Math.PI/180;R(d,'#A89A7E',Math.round(h+Math.cos(r)*150),Math.round(h+Math.sin(r)*150),2,2)}for(let a=15;a<360;a+=30){const r=a*Math.PI/180;const ex=Math.round(h+Math.cos(r)*150),ey=Math.round(h+Math.sin(r)*150);R(d,'#B14872',ex-2,ey-2,5,5);R(d,'#F5A3C7',ex-1,ey-1,3,3)}for(let a=0;a<360;a+=2){const r=a*Math.PI/180;R(d,'#A89A7E',Math.round(h+Math.cos(r)*104),Math.round(h+Math.sin(r)*104),2,2)}for(let a=0;a<360;a+=30){const r=a*Math.PI/180;const ex=Math.round(h+Math.cos(r)*104),ey=Math.round(h+Math.sin(r)*104);R(d,'#5FA89B',ex-2,ey-2,5,5);R(d,'#F2C14E',ex-1,ey-1,3,3)}for(let k2=0;k2<8;k2++){const r=k2*Math.PI/4;for(let q=52;q<148;q+=3)R(d,'#C2B69B',Math.round(h+Math.cos(r)*q),Math.round(h+Math.sin(r)*q),2,2)}
   for(let a=0;a<360;a+=3){const r=a*Math.PI/180;R(d,'#5FA89B',Math.round(h+Math.cos(r)*48),Math.round(h+Math.sin(r)*48),2,2)}
-  pcirc(d,h,h+3,24,'rgba(40,40,30,.2)');pcirc(d,h,h,23,'#8A7E66');pcirc(d,h,h,21,'#C2B79F');pcirc(d,h,h,17,'#3A93CB');pcirc(d,h,h,14,'#4AA7DD');pcirc(d,h,h,5,'#8A7E66');pcirc(d,h,h,4,'#D1C7AF');R(d,'#EDE6D6',h-2,h-3,2,2);
-  DEC.push({img:dc,x:FX-h,y:FY-h})}
+  DEC.push({img:artReg('plaza_round',dc),x:FX-h,y:FY-h});
+  const [fc,f]=cv(52,54),q=26;/* fountain bowl: separate decal so it stays on top of the PNG plaza */
+  pcirc(f,q,q+3,24,'rgba(40,40,30,.2)');pcirc(f,q,q,23,'#8A7E66');pcirc(f,q,q,21,'#C2B79F');pcirc(f,q,q,17,'#3A93CB');pcirc(f,q,q,14,'#4AA7DD');pcirc(f,q,q,5,'#8A7E66');pcirc(f,q,q,4,'#D1C7AF');R(f,'#EDE6D6',q-2,q-3,2,2);
+  DEC.push({img:fc,x:FX-q,y:FY-q})}
 function makeWater(rx,ry,deep,lotus,reeds){const W=rx*2+12,H=ry*2+12,cx=W>>1,cy=H>>1;const [c,x]=cv(W,H);
   pell(x,cx,cy,rx+2,ry+2,'#CDB783');pell(x,cx,cy,rx,ry,'#DCC896');pell(x,cx,cy,rx-4,ry-4,'#3A93CB');pell(x,cx,cy+4,Math.round(rx*.8),Math.round(ry*.7),'#2F80B6');
   if(deep)pell(x,cx,cy+8,Math.round(rx*.5),Math.round(ry*.4),'#2A73A6');
@@ -932,7 +934,7 @@ function makeWater(rx,ry,deep,lotus,reeds){const W=rx*2+12,H=ry*2+12,cx=W>>1,cy=
   return {c,cx,cy,x}}
 {const w=makeWater(62,37,false,9,34);DEC.push({img:w.c,x:PX-w.cx,y:PY-w.cy})}
 {const w=makeWater(116,72,true,10,56);DEC.push({img:w.c,x:LX-w.cx,y:LY-w.cy})}
-{const a=makeArena();DEC.push({img:a,x:AX-168,y:AY-168})}
+{const a=artReg('arena_round',makeArena());DEC.push({img:a,x:AX-168,y:AY-168})}
 {const [c,x]=cv(34,14);pell(x,17,8,15,5,'#6E4526');pell(x,17,7,13,4,'#A86D3F');pell(x,17,7,10,2,'#5E3E22');R(x,'#8E5A33',6,4,1,7);R(x,'#8E5A33',27,4,1,7);R(x,'#D9CCB0',2,6,8,1);DEC.push({img:c,x:LX+10,y:LY+22})}
 {const [c,x]=cv(66,32);for(let xx=0;xx<64;xx+=4){R(x,xx%8?'#A0703E':'#96683A',xx,2,3,28);R(x,'#5E3E22',xx+3,2,1,28);R(x,'#B98452',xx,2,1,28)}
   for(let xx=6;xx<64;xx+=20){R(x,'#4E2F18',xx,0,6,3);R(x,'#4E2F18',xx,29,6,3)}R(x,'#3A2618',63,2,3,28);DEC.push({img:c,x:110*T,y:21*T})}
@@ -945,19 +947,30 @@ const chunkCache=new Map();let frameNo=0,builtThis=0;const stats={built:0,drawn:
 const noise=(x,y)=>Math.sin(x*.33+Math.cos(y*.21)*2.1)+Math.cos(y*.29-x*.13)*.9;
 // PNG ground tiles (assets/01_ground_tiles): center tile per ground type, plus an edge/corner tile where it meets grass
 const TILE_ART={0:'tile_grass',1:'tile_path',2:'tile_plaza',3:'tile_water',4:'tile_forest',5:'tile_paddy',6:'tile_bridge',7:'tile_dike',8:'tile_neon',9:'tile_sea',10:'tile_sand'};
-// corner ("dual grid") autotile sets: drawn on vertices, half a tile offset; corner bits NW=1 NE=2 SW=4 SE=8 = neighbouring tile is this ground type
-const CORNER_SETS=[{v:1,n:'path'}];
-function cornerSet(v){for(const c of CORNER_SETS)if(c.v===v&&artImg(c.n+'_15'))return c;return null}
-function paintCorners(g,cx,cy,x0,y0){for(const cs of CORNER_SETS){if(!artImg(cs.n+'_15'))continue;const is=(x,y)=>inB(x,y)&&G[idx(x,y)]===cs.v;
-  for(let ty=cy*CH;ty<=Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<=Math.min(MW,(cx+1)*CH);tx++){
-    const m=(is(tx-1,ty-1)?1:0)|(is(tx,ty-1)?2:0)|(is(tx-1,ty)?4:0)|(is(tx,ty)?8:0);if(!m)continue;
-    let im=artImg(cs.n+'_'+m);if(m===15){const hu=(Math.imul(tx,2654435761)^Math.imul(ty,40503))>>>0,vr=['','','b','c','d'][hu%5];im=(vr&&artImg(cs.n+'_15'+vr))||im}
-    if(im)g.drawImage(im,tx*T-T/2-x0,ty*T-T/2-y0,T,T)}}}
-function tileArt(g,tx,ty,px,py,i,v){if(cornerSet(v))v=0;const nm=TILE_ART[v];if(!nm||(v===6&&!BRG[i]))return false;
+// corner ("dual grid") autotile sets (assets/G02..G13): drawn on vertices, half a tile offset; corner bits NW=1 NE=2 SW=4 SE=8 =
+// neighbouring tile belongs to this set. Each set has 16 masks + 15b/c/d fill variants; complementary masks of two sets tile without gaps.
+// Order = the art pack's layer order (lower first). Tiles claimed by a loaded set get a grass base from paintTile.
+const CORNER_SETS=['forest','soil','paddy','neon','sand','sea','water','path','market','plaza'];
+const GSET={1:'path',2:'plaza',4:'forest',5:'paddy',7:'soil',8:'neon',9:'sea',10:'sand'};let MKT_BOX=null;
+function gcls(x,y){x=x<0?0:x>=MW?MW-1:x;y=y<0?0:y>=MH?MH-1:y;const i=idx(x,y),v=G[i];
+  if(v===3)return RIV[i]?'water':null;
+  if(v===6)return BRG[i]?'water':y>=100?(y>=SEA0(x)?'sea':'sand'):null;/* bridge decks sit on river; beach pier on sea/sand */
+  if(v===1){const b=MKT_BOX||(MKT_BOX=[...TPT(7,39),...TPT(31,55)]);if(x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3])return 'market'}/* market square (under the old checker floor decal) */
+  return GSET[v]||null}
+function gclaim(tx,ty){const c=gcls(tx,ty);return !!(c&&artImg(c+'_15'))}
+function paintCorners(g,cx,cy,x0,y0){const tx0=cx*CH-1,ty0=cy*CH-1,tx1=Math.min(MW,(cx+1)*CH),ty1=Math.min(MH,(cy+1)*CH),CW=tx1-tx0+1,K=new Array(CW*(ty1-ty0+1));
+  for(let y=ty0;y<=ty1;y++)for(let x=tx0;x<=tx1;x++)K[(y-ty0)*CW+x-tx0]=gcls(x,y);
+  for(const n of CORNER_SETS){if(!artImg(n+'_15'))continue;const is=(x,y)=>K[(y-ty0)*CW+x-tx0]===n;
+    for(let ty=ty0+1;ty<=ty1;ty++)for(let tx=tx0+1;tx<=tx1;tx++){
+      const m=(is(tx-1,ty-1)?1:0)|(is(tx,ty-1)?2:0)|(is(tx-1,ty)?4:0)|(is(tx,ty)?8:0);if(!m)continue;
+      let im=artImg(n+'_'+m);if(m===15){const hu=(Math.imul(tx,2654435761)^Math.imul(ty,40503))>>>0;
+        if(n==='sea'&&ty-SEA0(tx)>=3)im=artImg('sea_deep_'+(1+hu%4))||im;else{const vr=['','','b','c','d'][hu%5];im=(vr&&artImg(n+'_15'+vr))||im}}
+      if(im)g.drawImage(im,tx*T-T/2-x0,ty*T-T/2-y0,T,T)}}}
+function tileArt(g,tx,ty,px,py,i,v){if(gclaim(tx,ty))v=0;const nm=TILE_ART[v];if(!nm||(v===6&&!BRG[i]))return false;
   if(v===0){const h=Math.imul(tx,73856093)^Math.imul(ty,19349663),hu=h>>>0;
     if(artImg('grass_1')){/* HD grass set T01: 32px variants (6/7 have flowers), darker near forest, sparse overlays */
       const nearF=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>inB(tx+dx,ty+dy)&&G[idx(tx+dx,ty+dy)]===4);
-      const im=nearF?artImg('grass_dark_'+(1+hu%4)):artImg('grass_'+[1,2,3,4,5,8,1,2,3,4,5,8,6,7][hu%14]);if(!im)return false;g.drawImage(im,px,py,T,T);
+      const im=nearF?artImg('grass_dark_'+(1+hu%4)):HGT[i]&&artImg('grass_high_1')?artImg('grass_high_'+(1+hu%4)):artImg('grass_'+[1,2,3,4,5,8,1,2,3,4,5,8,6,7][hu%14]);if(!im)return false;g.drawImage(im,px,py,T,T);
       const o=(hu>>>9)%100,ov=o<7?'tuft_'+(1+o%4):o<10?'flowers_'+(1+o%4):o<12?'pebbles_'+(1+o%2):o<13?'leaves_'+(1+o%2):null,oi=ov&&artImg(ov);if(oi)g.drawImage(oi,px,py,T,T);return true}
     const im=artImg('tile_grass_'+(1+(((tx*7)^(ty*13)^(tx*ty))&3)))||artImg('tile_grass');if(!im)return false;g.drawImage(im,px,py);return true}
   const im=artImg(nm);if(!im)return false;g.drawImage(im,px,py);
@@ -995,7 +1008,7 @@ function paintTile(g,tx,ty,px,py){
   for(let k=0;k<3;k++)R(g,'#8BD26A',px+ri(15),py+ri(15),1,1);
   const fl=(tx>=117&&ty>=82&&ty<114)?.35:.07;
   if(v===0&&r()<fl){const a=px+3+ri(9),b=py+3+ri(9),fc=['#FFFFFF','#F7D154','#F5A3C7','#F26B6B','#B7A4FF'][ri(5)];R(g,'#3F8A3A',a+1,b+2,1,2);R(g,fc,a,b+1,3,1);R(g,fc,a+1,b,1,3);R(g,'#F2C14E',a+1,b+1,1,1)}}
-function paintShadow(g,o){if(o.ell){pell(g,o.x+o.ell[0],o.base-2,o.ell[1],o.ell[2],'rgba(16,40,20,.28)');return}if(o.tree)pell(g,o.x+21,o.base-2,13,4,'rgba(16,40,20,.28)');else if(o.img.width>40)R(g,'rgba(16,40,20,.22)',o.x+6,o.base-3,o.img.width-4,6);else pell(g,o.x+(o.img.width>>1)+1,o.base-1,o.img.width>>1,2,'rgba(16,40,20,.25)')}
+function paintShadow(g,o){if(o.fen)return;/* PNG fence pieces carry their own shadow */if(o.ell){pell(g,o.x+o.ell[0],o.base-2,o.ell[1],o.ell[2],'rgba(16,40,20,.28)');return}if(o.tree)pell(g,o.x+21,o.base-2,13,4,'rgba(16,40,20,.28)');else if(o.img.width>40)R(g,'rgba(16,40,20,.22)',o.x+6,o.base-3,o.img.width-4,6);else pell(g,o.x+(o.img.width>>1)+1,o.base-1,o.img.width>>1,2,'rgba(16,40,20,.25)')}
 /* ---- HD terrain pass: curved river banks, bulging rock cliffs, side faces, smooth terrace light (per pixel, after tiles) ---- */
 function thH(x,y){let h=(Math.imul(x|0,374761393)+Math.imul(y|0,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967296}
 function thV(x,y){const xi=Math.floor(x),yi=Math.floor(y),fx=x-xi,fy=y-yi,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy),a=thH(xi,yi),b=thH(xi+1,yi),c=thH(xi,yi+1),d=thH(xi+1,yi+1);return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy}
@@ -1015,7 +1028,9 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
   for(let y=0;y<FH;y++)for(let x=0;x<FW;x++){const X=tx0-M+x,Y=ty0-M+y;let v=isW(X,Y)*.5;if(v||isW(X-1,Y)||isW(X+1,Y)||isW(X,Y-1)||isW(X,Y+1)){v+=(isW(X-1,Y)+isW(X+1,Y)+isW(X,Y-1)+isW(X,Y+1))*.1+(isW(X-1,Y-1)+isW(X+1,Y-1)+isW(X-1,Y+1)+isW(X+1,Y+1))*.025}
     WF[y*FW+x]=v;if(v)anyW=1;const cX=Math.max(0,Math.min(MW-1,X)),cY=Math.max(0,Math.min(MH-1,Y)),h=HGT[idx(cX,cY)],gS=G[idx(cX,cY)];SF[y*FW+x]=gS===10||gS===9||gS===3?1:0;PF[y*FW+x]=gS===1?1:0;if(gS===10||gS===1)anyS=1;HF[y*FW+x]=h;if(h)anyH=1;
     const hb=h*.5+(hAt(X-1,Y)+hAt(X+1,Y)+hAt(X,Y-1)+hAt(X,Y+1))*.1+(hAt(X-1,Y-1)+hAt(X+1,Y-1)+hAt(X-1,Y+1)+hAt(X+1,Y+1))*.025;HB[y*FW+x]=hb;if(hb!==h)anyStep=1}
+  if(artImg('cliff_3'))anyStep=0;/* PNG cliff set (paintCliffs) draws terrace edges */
   if(!anyW&&!anyH&&!anyS&&!anyStep)return;
+  const wSet=!!artImg('water_15'),bSet=!!(artImg('sand_15')&&artImg('path_15'));/* PNG corner sets already draw river banks and sand/path edges */
   const bil=(F,u,v)=>{u-=tx0-M+.5;v-=ty0-M+.5;const xi=Math.max(0,Math.min(FW-2,Math.floor(u))),yi=Math.max(0,Math.min(FH-2,Math.floor(v))),fx=Math.max(0,Math.min(1,u-xi)),fy=Math.max(0,Math.min(1,v-yi)),o=yi*FW+xi;
     return F[o]*(1-fx)*(1-fy)+F[o+1]*fx*(1-fy)+F[o+FW]*(1-fx)*fy+F[o+FW+1]*fx*fy};
   const cl=(x,y)=>inB(x,y)?CLIFF[idx(x,y)]:0;
@@ -1038,9 +1053,9 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
   /* pass 1: which tiles need work */
   const jobs=[],flatT=[];let bx0=1e9,by0=1e9,bx1=-1,by1=-1;
   for(let ty=ty0;ty<ty1;ty++)for(let tx=tx0;tx<tx1;tx++){const i=idx(tx,ty),cf=CLIFF[i],h=HGT[i];
-    const nearW=anyW&&(isW(tx,ty)||isW(tx-1,ty)||isW(tx+1,ty)||isW(tx,ty-1)||isW(tx,ty+1)||isW(tx-1,ty-1)||isW(tx+1,ty-1)||isW(tx-1,ty+1)||isW(tx+1,ty+1));
+    const nearW=!wSet&&anyW&&(isW(tx,ty)||isW(tx-1,ty)||isW(tx+1,ty)||isW(tx,ty-1)||isW(tx,ty+1)||isW(tx-1,ty-1)||isW(tx+1,ty-1)||isW(tx-1,ty+1)||isW(tx+1,ty+1));
     const gT=G[i],nb8=v=>[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]].some(([dx,dy])=>inB(tx+dx,ty+dy)&&G[idx(tx+dx,ty+dy)]===v);
-    const bT=!anyS?0:gT===0?(nb8(10)?10:nb8(1)?1:0):(gT===10||gT===1)&&!BRG[i]&&!cf&&nb8(0)?gT:0;
+    const bT=!anyS||bSet?0:gT===0?(nb8(10)?10:nb8(1)?1:0):(gT===10||gT===1)&&!BRG[i]&&!cf&&nb8(0)?gT:0;
     let step=0;if(anyStep)for(let dy=-3;dy<=1&&!step;dy++)for(let dx=-1;dx<=1;dx++)if(hAt(tx+dx,ty+dy)!==h){step=1;break}
     const tint=anyH&&(h||step);
     if(tint&&h&&!step&&!nearW&&!bT){flatT.push(tx,ty,h);continue}/* uniform terrace interior: one fillRect later instead of per pixel */
@@ -1100,13 +1115,29 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
         else if(v>=.36){const pb=thH(Math.floor(wx/3),Math.floor(wy/3));if(pb>.86){const fx=wx/3-Math.floor(wx/3),fy=wy/3-Math.floor(wy/3);set(o,...(fy<.4&&fx<.6?C.pebH:C.peb))}else set(o,...((thH(wx*2|0,wy*2|0)<.2)?C.wet2:C.wet))}
         else if(v>=.3&&((lx0+ly0)&1)===0)mix(o,C.wet,.55)}}}
   g.putImageData(img,ox,oy);flatPaint()}
+/* PNG cliffs (assets/G09_cliff): dual-grid pieces 16x32 drawn on vertices (half-tile offset), one pass per height level; bits NW=1 NE=2 SW=4 SE=8 = that
+   tile is at least this level. A south edge hangs a 1.5 tile rock face over the CLIFF 1/3 rows below it; east/west edges get a thin side wall.
+   Vertices touching a road ramp stay open. Stair flights (CLIFF 2 over 4, 2-3 wide) use stairs_2w / stairs_3w; 1-wide steps keep the code stairs. */
+function stairW(tx,ty){if(CLIFF[idx(tx,ty)]===4)ty--;let a=tx,b=tx;while(a>0&&CLIFF[idx(a-1,ty)]===2)a--;while(b<MW-1&&CLIFF[idx(b+1,ty)]===2)b++;return b-a+1}
+function paintCliffs(g,cx,cy,x0,y0){const hA=(x,y)=>HGT[idx(x<0?0:x>=MW?MW-1:x,y<0?0:y>=MH?MH-1:y)],rp=(x,y)=>inB(x,y)&&RAMP[idx(x,y)],rd=(x,y)=>inB(x,y)&&G[idx(x,y)]===1;
+  for(let L=1;L<=3;L++)for(let ty=Math.max(1,cy*CH-2);ty<=Math.min(MH-1,(cy+1)*CH);ty++)for(let tx=Math.max(1,cx*CH);tx<=Math.min(MW-1,(cx+1)*CH);tx++){
+    const m=(hA(tx-1,ty-1)>=L?1:0)|(hA(tx,ty-1)>=L?2:0)|(hA(tx-1,ty)>=L?4:0)|(hA(tx,ty)>=L?8:0);if(!m||m===15)continue;
+    if(rp(tx-1,ty-1)||rp(tx,ty-1)||rp(tx-1,ty)||rp(tx,ty))continue;
+    if(m&12&&(rd(tx-1,ty-1)||rd(tx,ty-1)||rd(tx-1,ty)||rd(tx,ty)||rd(tx-1,ty+1)||rd(tx,ty+1)))continue;/* side / north edges stay open where a road runs across (south faces use stairs) */
+    let im=artImg('cliff_'+m);if(m===3){const hu=(Math.imul(tx,2654435761)^Math.imul(ty+L,40503))>>>0,vr=hu%24===7?'b':['','','','c','d','','c',''][hu%8];/* b = cave hole: rare */im=(vr&&artImg('cliff_3'+vr))||im}
+    if(im)g.drawImage(im,tx*T-T/2-x0,ty*T-T/2-y0,T,2*T)}}
+function paintStairs(g,cx,cy,x0,y0){
+  for(let ty=Math.max(0,cy*CH-2);ty<Math.min(MH,(cy+1)*CH+1);ty++)for(let tx=Math.max(1,cx*CH-3);tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty);
+    if(CLIFF[i]!==2||CLIFF[i-1]===2)continue;const w=stairW(tx,ty),im=w===3?artImg('stairs_3w'):w===2?artImg('stairs_2w'):null;if(im)g.drawImage(im,tx*T-x0,ty*T-T/2-y0,w*T,2*T)}}
 function paintChunk(cx,cy){const HK=artImg('grass_1')?2:1;const [c,g]=cv(CPX*HK,CPX*HK);if(HK>1)g.scale(HK,HK);const x0=cx*CPX,y0=cy*CPX;/* HD ground: chunk painted at 2x so 32px PNG tiles keep full detail */
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++)paintTile(g,tx,ty,tx*T-x0,ty*T-y0);
   if(artReg.img)paintCorners(g,cx,cy,x0,y0);
   try{hdTerrain(c,g,cx,cy,x0,y0,HK)}catch(e){hookErr&&hookErr(e)}
-  for(const d of DEC)if(!d.hide&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img,d.x-x0,d.y-y0);
+  if(artImg('cliff_3'))paintCliffs(g,cx,cy,x0,y0);/* before decals: footpath decals run over terrace edges */
+  for(const d of DEC)if(!d.hide&&!(d.noArt&&artImg(d.noArt))&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img._hd||d.img,d.x-x0,d.y-y0,d.img.width,d.img.height);
+  const cArt=!!artImg('cliff_3');if(cArt)paintStairs(g,cx,cy,x0,y0);
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty),px=tx*T-x0,py=ty*T-y0;
-    if(CLIFF[i]===2||CLIFF[i]===4){/* stone stairs cut into the cliff: treads lit from above, dark risers, rock cheeks where the flight ends */
+    if((CLIFF[i]===2||CLIFF[i]===4)&&!(cArt&&stairW(tx,ty)>=2)){/* stone stairs cut into the cliff: treads lit from above, dark risers, rock cheeks where the flight ends */
       const st=(x,y)=>inB(x,y)&&(CLIFF[idx(x,y)]===2||CLIFF[idx(x,y)]===4),up=CLIFF[i]===2,lE=!st(tx-1,ty),rE=!st(tx+1,ty),yEnd=up?16:12,r=trng(tx,ty,41);
       for(let yy=0;yy<yEnd;yy+=4){const gy=(up?0:16)+yy,k=gy/28,tr=k<.3?'#DCD2BC':k<.6?'#CFC4AC':'#C0B49A',hl=k<.3?'#F0E8D6':k<.6?'#E3D9C4':'#D6CBB4';
         R(g,tr,px,py+yy,T,3);R(g,hl,px,py+yy,T,1);R(g,'#857A68',px,py+yy+3,T,1);
@@ -2331,7 +2362,7 @@ HOOKS.top.push(()=>{if(scene!=='town'||!visAny(...TP(19*T,47*T),300))return;cons
   for(const l of LANTERNS){const sx=SNP(l.x-cam.x),sy=SNP(l.y-cam.y+Math.sin(t*2+l.x)*1);R(ctx,'#0A1418',sx-3,sy-1,7,8);R(ctx,'#E2534A',sx-2,sy,5,6);R(ctx,'#F2C14E',sx-2,sy,5,1);R(ctx,'#F2C14E',sx-2,sy+5,5,1);R(ctx,'#FFE0A0',sx-1,sy+2,1,2)}
   for(const n of NOTES){const sx=SNP(n.x-cam.x),sy=SNP(n.y-cam.y),a=Math.max(0,1-n.t/2);ctx.globalAlpha=a;R(ctx,n.c,sx,sy,3,2);R(ctx,n.c,sx+2,sy-5,1,6);R(ctx,n.c,sx+2,sy-5,3,1);ctx.globalAlpha=1}});
 {const W=23*T,H=15*T;const [c,x]=cv(W,H);for(let yy=0;yy<H;yy+=16)for(let xx=0;xx<W;xx+=16){const k=((xx+yy)/16)%2;R(x,k?'#D9B98A':'#E6CDA0',xx,yy,16,16);R(x,'#C9A77A',xx,yy,16,1);R(x,'#C9A77A',xx,yy,1,16);if(((xx/16)+(yy/16))%5===0){R(x,'#C0412E',xx+6,yy+6,4,4);R(x,'#F2C14E',xx+7,yy+7,2,2)}}
-  R(x,'#8E5A33',0,0,W,2);R(x,'#8E5A33',0,H-2,W,2);R(x,'#8E5A33',0,0,2,H);R(x,'#8E5A33',W-2,0,2,H);DEC.unshift({img:c,x:8*T,y:40*T})}
+  R(x,'#8E5A33',0,0,W,2);R(x,'#8E5A33',0,H-2,W,2);R(x,'#8E5A33',0,0,2,H);R(x,'#8E5A33',W-2,0,2,H);DEC.unshift({img:c,x:8*T,y:40*T,noArt:'market_15'})}
 INT.push({x:15*T+8,y:55*T+8,r:22,my:-50,act:()=>openShop('fruit')});INT.push({x:19*T+8,y:55*T+8,r:22,my:-50,act:()=>openShop('toy')});INT.push({x:29*T+8,y:41*T+8,r:20,my:-46,act:()=>openShop('balloon')});
 
 /* ================= round 4 ================= */
@@ -3469,7 +3500,26 @@ function TP(x,y){const o=TOFF(x,y);return [x+o[0],y+o[1]]}
 function TPT(tx,ty){const d=distAt(tx,ty);return [tx+d[5],ty+d[6]]}
 function DBOX(name){const d=DIST.find(q=>q[0]===name);return [d[1]+d[5],d[2]+d[6],d[3]+d[5],d[4]+d[6]]}
 const WATERFALLS=[],CRYS_DECOR=[];
-HOOKS.town.push((L,vis)=>{for(const [x,y] of WATERFALLS){const px=x*T,py=y*T;if(!vis(px+8,py+8,24))continue;L.push({base:py+T+1,fn:()=>{const sx=SNP(px-cam.x),sy=SNP(py-cam.y);
+/* PNG fences (assets/G11_fences): once the set loads, each ranch fence object gets the piece matching its fence neighbours.
+   The canvas keeps the old 18x20 size (layout keys unchanged); the 32px piece is kept as _hd for the zoomed draw. */
+let FEN_DONE=0,CLF_DONE=0;
+function fenceCv(m){const im=artImg('fence_'+m),[c,x]=cv(18,20),[h,hx]=cv(36,40);hx.drawImage(im,2,6);x.drawImage(im,1,3,16,16);c._hd=h;return c}
+function fenceArt(){const fo=OBJ.filter(o=>o.img===FEN_H||o.img===FEN_V),key=o=>Math.floor((o.x+1)/T)+','+Math.floor((o.base-1)/T),has=new Set(fo.map(key)),cache={};
+  for(const o of fo){const [x,y]=key(o).split(',').map(Number),m=(has.has(x+','+(y-1))?1:0)|(has.has((x+1)+','+y)?2:0)|(has.has(x+','+(y+1))?4:0)|(has.has((x-1)+','+y)?8:0);o.fen=1;o.img=cache[m]||(cache[m]=fenceCv(m))}chunkCache.clear()}
+/* PNG waterfalls (assets/G07_waterfall, 3 frames): each run of drop tiles is widened to the river's full width and drawn as
+   lip / fall / fall / splash rows (left, mid, right modules); a run below the dam wall gets the dam spillway sprite */
+let WF_RUNS=null;
+function wfRuns(){const out=[],key=new Set(WATERFALLS.map(([x,y])=>x+','+y)),done=new Set(),wet=(x,y)=>inB(x,y)&&G[idx(x,y)]===3;
+  for(const [x,y] of WATERFALLS){if(done.has(x+','+y))continue;let a=x,b=x;while(key.has((a-1)+','+y))a--;while(key.has((b+1)+','+y))b++;for(let k=a;k<=b;k++)done.add(k+','+y);
+    const dam=!wet(x,y-1);if(!dam){while(wet(a-1,y)&&wet(a-1,y-1))a--;while(wet(b+1,y)&&wet(b+1,y-1))b++}out.push({a,b,y,dam})}return out}
+function wfArt(L,vis){const runs=WF_RUNS||(WF_RUNS=wfRuns()),f='_f'+(1+((t*8)|0)%3);
+  for(const r of runs){const px=r.a*T,w=(r.b-r.a+1)*T,py=r.y*T;if(!vis(px+w/2,py+T,w/2+48))continue;
+    if(r.dam){const im=artImg('dam_spill'+f);if(!im)continue;const h=Math.round(w*im.height/im.width);L.push({base:py+h,fn:()=>ctx.drawImage(im,SNP(px-cam.x),SNP(py-2-cam.y),w,h)});continue}
+    L.push({base:py+2*T+8,fn:()=>{for(let x=r.a;x<=r.b;x++){const col=r.a===r.b?'mid':x===r.a?'left':x===r.b?'right':'mid',sx=SNP(x*T-cam.x);
+      ['top','fall','fall','bottom'].forEach((row,k)=>{const im=artImg('wf_'+row+'_'+col+f);if(im)ctx.drawImage(im,sx,SNP(py+(k-1)*T-cam.y),T,T)})}}})}}
+HOOKS.update.push(()=>{if(!FEN_DONE&&artImg('fence_15')){FEN_DONE=1;fenceArt()}
+  if(!CLF_DONE&&artImg('cliff_3')){CLF_DONE=1;for(let i=0;i<CLIFF.length;i++)if(CLIFF[i]===3)SOL[i]=0}});/* PNG cliff faces end 1.5 tiles below the edge: the 2nd face row is walkable */
+HOOKS.town.push((L,vis)=>{if(artImg('wf_fall_mid_f1')){wfArt(L,vis);return}for(const [x,y] of WATERFALLS){const px=x*T,py=y*T;if(!vis(px+8,py+8,24))continue;L.push({base:py+T+1,fn:()=>{const sx=SNP(px-cam.x),sy=SNP(py-cam.y);
   R(ctx,'rgba(230,247,255,.85)',sx,sy-6,T,T+6);for(let k=0;k<5;k++){const ox=(k*3+((t*40+k*7)|0))%T,len=4+(k*5)%7,oy=((t*60+k*9)%(T+6))-6;R(ctx,'#BFE6FA',sx+ox,sy+oy,1,len)}
   for(let k=0;k<4;k++){const a=(t*2+k*1.7)%1;R(ctx,'rgba(255,255,255,'+(1-a).toFixed(2)+')',sx+2+k*3,sy+T-2-a*4,2,2)}}})}
   for(const c of CRYS_DECOR){if(!vis(c.x,c.y,20))continue;L.push({base:c.y,fn:()=>{const sx=SNP(c.x-cam.x),sy=SNP(c.y-cam.y),a=(Math.sin(t*2+c.x)+1)/2;ctx.fillStyle='rgba(184,166,255,'+(.12+a*.18).toFixed(2)+')';ctx.fillRect(sx-8,sy-18,16,18);
