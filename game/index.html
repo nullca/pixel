@@ -917,6 +917,7 @@ function eachObj(x0,y0,x1,y1,fn){const bx0=Math.max(0,Math.floor(x0/BS)),bx1=Mat
 
 /* ---------- ground decals (pre-rendered once, stamped into chunks) ---------- */
 const DEC=[];
+DEC.push(pieceDecal(31*T,RY0*T,T,T,'gate_open',g=>g.drawImage(artImg('gate_open'),0,0)));/* PNG open gate at the ranch entrance (ranch fence block) */
 {const S=380,h=190;const [pc,p]=cv(S,S);R(p,'#AE9F82',0,0,S,S);
   for(let r=0;r*8<S;r++){const off=(r%2)*6;for(let sx=-12+off;sx<S;sx+=12){R(p,['#CFC5AD','#D7CEB8','#C7BCA2'][rnd()*3|0],sx+1,r*8+1,11,7);R(p,'#E3DCCB',sx+1,r*8+1,11,1)}}
   const [mc,m]=cv(S,S);pcirc(m,h,h,180,'#000');m.globalCompositeOperation='source-in';m.drawImage(pc,0,0);
@@ -1129,12 +1130,15 @@ function paintCliffs(g,cx,cy,x0,y0){const hA=(x,y)=>HGT[idx(x<0?0:x>=MW?MW-1:x,y
 function paintStairs(g,cx,cy,x0,y0){
   for(let ty=Math.max(0,cy*CH-2);ty<Math.min(MH,(cy+1)*CH+1);ty++)for(let tx=Math.max(1,cx*CH-3);tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty);
     if(CLIFF[i]!==2||CLIFF[i-1]===2)continue;const w=stairW(tx,ty),im=w===3?artImg('stairs_3w'):w===2?artImg('stairs_2w'):null;if(im)g.drawImage(im,tx*T-x0,ty*T-T/2-y0,w*T,2*T)}}
+/* decals built from PNG pieces (bridges, pier): d.artOnly names a piece that must be loaded; d.fill(g) paints the 2x canvas once */
+function artDecal(d){if(!artImg(d.artOnly))return false;if(!d.img._hd){const [h,hx]=cv(d.img.width*2,d.img.height*2);d.fill(hx);d.img._hd=h;const g=d.img.getContext('2d');g.clearRect(0,0,d.img.width,d.img.height);g.drawImage(h,0,0,d.img.width,d.img.height)}return true}
+function pieceDecal(x,y,w,h,need,fill){return {img:cv(w,h)[0],x,y,artOnly:need,fill}}
 function paintChunk(cx,cy){const HK=artImg('grass_1')?2:1;const [c,g]=cv(CPX*HK,CPX*HK);if(HK>1)g.scale(HK,HK);const x0=cx*CPX,y0=cy*CPX;/* HD ground: chunk painted at 2x so 32px PNG tiles keep full detail */
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++)paintTile(g,tx,ty,tx*T-x0,ty*T-y0);
   if(artReg.img)paintCorners(g,cx,cy,x0,y0);
   try{hdTerrain(c,g,cx,cy,x0,y0,HK)}catch(e){hookErr&&hookErr(e)}
   if(artImg('cliff_3'))paintCliffs(g,cx,cy,x0,y0);/* before decals: footpath decals run over terrace edges */
-  for(const d of DEC)if(!d.hide&&!(d.noArt&&artImg(d.noArt))&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img._hd||d.img,d.x-x0,d.y-y0,d.img.width,d.img.height);
+  for(const d of DEC)if(!d.hide&&!(d.noArt&&artImg(d.noArt))&&!(d.artOnly&&!artDecal(d))&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img._hd||d.img,d.x-x0,d.y-y0,d.img.width,d.img.height);
   const cArt=!!artImg('cliff_3');if(cArt)paintStairs(g,cx,cy,x0,y0);
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty),px=tx*T-x0,py=ty*T-y0;
     if((CLIFF[i]===2||CLIFF[i]===4)&&!(cArt&&stairW(tx,ty)>=2)){/* stone stairs cut into the cliff: treads lit from above, dark risers, rock cheeks where the flight ends */
@@ -1848,7 +1852,7 @@ INT.push({x:96*T+8,y:27*T+8,r:30,my:-30,act:()=>{const k=solarKwh();say([{name:'
 function turbineInfo(){const w=isRain()?1.3:1;const kw=Math.round((180+Math.sin(t*.1)*40)*w);say([{name:'กังหันลมผลิตไฟ',t:`กังหันลม 3 ต้นบนเนินผลิตไฟรวม ${kw*3} kW ตอนนี้ ใบพัดหมุนเร็วขึ้นเวลาฝนตกและลมแรง`}])}
 for(const o of TURBS){INT.push({x:o.x+16,y:o.base+4,r:22,my:-176,act:turbineInfo});o.dyn=(sx,sy)=>{const hx=sx+10,hy=sy+14,a0=t*(isRain()?2.6:1.5);for(let b=0;b<3;b++){const a=a0+b*2.094,ca=Math.cos(a),sa=Math.sin(a),pc=-sa,ps=ca;for(let r=3;r<=58;r++){const w=r<20?2.5:r<45?2:1.4;R(ctx,r>52?'#E2534A':(r%2?'#FFFFFF':'#F2F2F4'),hx+ca*r-pc*w/2,hy+sa*r-ps*w/2,w,w)}}pcirc(ctx,Math.round(hx),Math.round(hy),3,'#E6E9EC');R(ctx,'#9AA6AE',hx-1,hy-1,2,2)}}
 
-{const W=8*T,H=8*T;const [c,x]=cv(W,H);for(let y=0;y<H;y+=4){R(x,(y/4)%2?'#B98452':'#C9955E',0,y,W,4);R(x,'#8E6236',0,y+3,W,1)}for(let xx=24;xx<W;xx+=40)R(x,'#8E6236',xx,0,1,H);R(x,'#6E4526',0,0,W,2);R(x,'#6E4526',0,H-2,W,2);DEC.push({img:c,x:74*T,y:33*T+4})}
+{const W=8*T,H=8*T;const [c,x]=cv(W,H);for(let y=0;y<H;y+=4){R(x,(y/4)%2?'#B98452':'#C9955E',0,y,W,4);R(x,'#8E6236',0,y+3,W,1)}for(let xx=24;xx<W;xx+=40)R(x,'#8E6236',xx,0,1,H);R(x,'#6E4526',0,0,W,2);R(x,'#6E4526',0,H-2,W,2);DEC.push({img:c,x:74*T,y:33*T+4,noArt:'deck_1'});DEC.push(pieceDecal(74*T,33*T+4,8*T,8*T,'deck_1',g=>{for(let yy=0;yy<8;yy++)for(let xx=0;xx<8;xx++)g.drawImage(artImg('deck_'+(1+((xx*7+yy*13+xx*yy)&3))),xx*32,yy*32);g.fillStyle='#4E2F18';g.fillRect(0,0,256,2);g.fillRect(0,254,256,2);g.fillRect(0,0,2,256);g.fillRect(254,0,2,256)}))}
 /* ---- sunflowers, picnic, kites in the sky, hot air balloon, petals ---- */
 {const W=14*T,H=10*T;const [c,x]=cv(W,H);for(let row=0;row<H;row+=12)for(let col=(row/12%2)*4;col<W;col+=8){const h=6+((row+col)%3);R(x,'#3F8A3A',col+3,row+12-h,1,h);R(x,'#5DBB4F',col+1,row+8,2,1);R(x,'#5DBB4F',col+4,row+9,2,1);R(x,'#F2C14E',col+1,row+12-h-2,5,3);R(x,'#F7D154',col+2,row+12-h-3,3,1);R(x,'#6E4526',col+3,row+12-h-1,1,1)}DEC.push({img:c,x:108*T,y:79*T})}
 {const [c,x]=cv(64,40);for(let yy=0;yy<40;yy+=8)for(let xx=0;xx<64;xx+=8)R(x,((xx+yy)/8)%2?'#FFFFFF':'#E2534A',xx,yy,8,8);R(x,'rgba(0,0,0,.08)',0,36,64,4);DEC.push({img:c,x:98*T,y:86*T+4})}
@@ -2566,7 +2570,8 @@ function makeDeptHouse(lb,rf,rd,lv){lv=lv||0;const T6={
 
 /* ================= beach, island, museum, hall of fame ================= */
 /* ---- beach decals, foam, sparkles ---- */
-{const [c,x]=cv(34,180);for(let y=0;y<176;y+=4){R(x,y%8?'#A0703E':'#96683A',2,y,28,3);R(x,'#5E3E22',2,y+3,28,1);R(x,'#B98452',2,y,28,1)}for(let y=6;y<176;y+=24){R(x,'#4E2F18',0,y,3,8);R(x,'#4E2F18',29,y,3,8)}DEC.push({img:c,x:60*T,y:100*T})}
+{const [c,x]=cv(34,180);for(let y=0;y<176;y+=4){R(x,y%8?'#A0703E':'#96683A',2,y,28,3);R(x,'#5E3E22',2,y+3,28,1);R(x,'#B98452',2,y,28,1)}for(let y=6;y<176;y+=24){R(x,'#4E2F18',0,y,3,8);R(x,'#4E2F18',29,y,3,8)}DEC.push({img:c,x:60*T,y:100*T,noArt:'pier_mid_1'});
+  DEC.push(pieceDecal(60*T+1,100*T,2*T,11*T,'pier_mid_1',g=>{for(let k=0;k<11;k++)g.drawImage(artImg(k===0?'pier_start':k===10?'pier_end':'pier_mid_'+(1+(k&1))),0,k*32)}))}
 {const cols=[['#E2534A','#FFFFFF'],['#3A93CB','#F2C14E'],['#5DBB63','#FFFFFF'],['#F5A3C7','#FFFFFF']];[[14,102],[39,101],[89,102],[103,101]].forEach(([tx,ty],i)=>{const [c,x]=cv(28,14);for(let yy=0;yy<14;yy++)R(x,yy%4<2?cols[i][0]:cols[i][1],0,yy,28,1);DEC.push({img:c,x:tx*T-6,y:ty*T+6})})}
 const BEACH_SPK=[];for(let i=0;i<260;i++){const x=2+Math.random()*124,y=SEA0(x|0)+.6+Math.random()*(MH-SEA0(x|0)-1);BEACH_SPK.push({x:x*T,y:y*T,p:Math.random()*6.28})}
 HOOKS.town.push((L,vis)=>{if(cam.y+ch<112*T)return;L.push({base:-2,fn:()=>{const tx0=Math.max(0,Math.floor(cam.x/T)),tx1=Math.min(MW-1,Math.ceil((cam.x+cw)/T));
@@ -3502,7 +3507,7 @@ function DBOX(name){const d=DIST.find(q=>q[0]===name);return [d[1]+d[5],d[2]+d[6
 const WATERFALLS=[],CRYS_DECOR=[];
 /* PNG fences (assets/G11_fences): once the set loads, each ranch fence object gets the piece matching its fence neighbours.
    The canvas keeps the old 18x20 size (layout keys unchanged); the 32px piece is kept as _hd for the zoomed draw. */
-let FEN_DONE=0,CLF_DONE=0;
+let FEN_DONE=0,CLF_DONE=0,CAVE_DONE=0,ROCK_DONE=0;
 function fenceCv(m){const im=artImg('fence_'+m),[c,x]=cv(18,20),[h,hx]=cv(36,40);hx.drawImage(im,2,6);x.drawImage(im,1,3,16,16);c._hd=h;return c}
 function fenceArt(){const fo=OBJ.filter(o=>o.img===FEN_H||o.img===FEN_V),key=o=>Math.floor((o.x+1)/T)+','+Math.floor((o.base-1)/T),has=new Set(fo.map(key)),cache={};
   for(const o of fo){const [x,y]=key(o).split(',').map(Number),m=(has.has(x+','+(y-1))?1:0)|(has.has((x+1)+','+y)?2:0)|(has.has(x+','+(y+1))?4:0)|(has.has((x-1)+','+y)?8:0);o.fen=1;o.img=cache[m]||(cache[m]=fenceCv(m))}chunkCache.clear()}
@@ -3516,8 +3521,31 @@ function wfArt(L,vis){const runs=WF_RUNS||(WF_RUNS=wfRuns()),f='_f'+(1+((t*8)|0)
   for(const r of runs){const px=r.a*T,w=(r.b-r.a+1)*T,py=r.y*T;if(!vis(px+w/2,py+T,w/2+48))continue;
     if(r.dam){const im=artImg('dam_spill'+f);if(!im)continue;const h=Math.round(w*im.height/im.width);L.push({base:py+h,fn:()=>ctx.drawImage(im,SNP(px-cam.x),SNP(py-2-cam.y),w,h)});continue}
     L.push({base:py+2*T+8,fn:()=>{for(let x=r.a;x<=r.b;x++){const col=r.a===r.b?'mid':x===r.a?'left':x===r.b?'right':'mid',sx=SNP(x*T-cam.x);
-      ['top','fall','fall','bottom'].forEach((row,k)=>{const im=artImg('wf_'+row+'_'+col+f);if(im)ctx.drawImage(im,sx,SNP(py+(k-1)*T-cam.y),T,T)})}}})}}
+      ['top','fall','fall','bottom'].forEach((row,k)=>{const im=artImg('wf_'+row+'_'+col+f);if(im)ctx.drawImage(im,sx,SNP(py+(k-1)*T-cam.y),T,T)})}
+      const mi=artImg('wf_mist_'+(1+r.a%3)+f);if(mi)ctx.drawImage(mi,SNP((r.a+r.b+1)*T/2-T-cam.x),SNP(py+2*T-6-cam.y),2*T,T)}})}}
+/* animated river + sea: the ground chunks hold frame 1; frames 2/3 redraw the visible water vertices before anything else in the world
+   (silhouettes are identical across frames). Bridge / pier tiles and deep sea are skipped. */
+let WDEC=null;/* river reeds / lily pads / rocks and beach driftwood / footprints, placed once by tile hash away from bridges, falls and objects */
+function wdecList(){const out=[],h=(x,y,k)=>((Math.imul(x,374761393)+Math.imul(y,668265263)+k*1013)>>>0)%1000/1000,wfr=new Set();for(const [x,y] of WATERFALLS)for(let d=-2;d<=3;d++)for(let e=-2;e<=2;e++)wfr.add((x+e)+','+(y+d));
+  const land=(x,y)=>inB(x,y)&&!(G[idx(x,y)]===3||G[idx(x,y)]===6||G[idx(x,y)]===9);
+  for(let y=1;y<MH-1;y++)for(let x=1;x<MW-1;x++){const i=idx(x,y);if(OCC[i]&&G[i]!==3&&G[i]!==10)continue;const r=h(x,y,1),k=wfr.has(x+','+y);
+    if(G[i]===3&&RIV[i]&&!k){let nb=0;for(let d=-2;d<=2;d++)for(let e=-2;e<=2;e++)if(inB(x+e,y+d)&&G[idx(x+e,y+d)]===6)nb=1;if(nb)continue;
+      const bank=land(x-1,y)||land(x+1,y);if(bank&&r<.16)out.push([x,y,'reeds_'+(1+(h(x,y,2)*2|0))]);else if(!bank&&r<.05)out.push([x,y,'lily_'+(1+(h(x,y,2)*2|0))]);else if(r>.975)out.push([x,y,'rock_water_'+(1+(h(x,y,2)*2|0))])}
+    else if(G[i]===10&&!SOL[i]&&!OCC[i]&&y<SEA0(x)-1){if(r<.012)out.push([x,y,'driftwood_1']);else if(r<.032&&y>=SEA0(x)-4)out.push([x,y,'shell_'+(1+(h(x,y,2)*3|0))]);else if(r<.038&&y>=SEA0(x)-4)out.push([x,y,'starfish_1']);else if(r>.985)out.push([x,y,'footprints_'+(1+(h(x,y,2)*2|0))])}}
+  return out}
+HOOKS.town.push((L,vis)=>{if(!artImg('water_15_f2'))return;const fr=((t*2.2)|0)%3,f='_f'+(fr+1);
+  L.push({base:-1e9,fn:()=>{if(fr)waterFrame(f);for(const [x,y,n] of WDEC||(WDEC=wdecList())){if(!vis(x*T+8,y*T+8,16))continue;const im=artImg(n);if(im)ctx.drawImage(im,SNP(x*T-cam.x),SNP(y*T-cam.y),T,T)}}})});
+function waterFrame(f){{const x0=Math.max(1,Math.floor(cam.x/T)),x1=Math.min(MW-1,Math.ceil((cam.x+cw)/T)+1),y0=Math.max(1,Math.floor(cam.y/T)),y1=Math.min(MH-1,Math.ceil((cam.y+ch)/T)+1);
+    for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const a=gcls(tx-1,ty-1),b=gcls(tx,ty-1),c=gcls(tx-1,ty),d=gcls(tx,ty);
+      for(const n of ['sea','water']){const m=(a===n?1:0)|(b===n?2:0)|(c===n?4:0)|(d===n?8:0);if(!m)continue;
+        let skip=false;for(const [x,y] of [[tx-1,ty-1],[tx,ty-1],[tx-1,ty],[tx,ty]])if(G[idx(x,y)]===6){skip=true;break}if(skip)continue;
+        let nm=n+'_'+m;if(m===15){const hu=(Math.imul(tx,2654435761)^Math.imul(ty,40503))>>>0;if(n==='sea'&&ty-SEA0(tx)>=3)continue;const vr=['','','b','c','d'][hu%5];if(vr&&artImg(n+'_15'+vr+f))nm+=vr}
+        const im=artImg(nm+f);if(im)ctx.drawImage(im,SNP(tx*T-T/2-cam.x),SNP(ty*T-T/2-cam.y),T,T)}}}}
 HOOKS.update.push(()=>{if(!FEN_DONE&&artImg('fence_15')){FEN_DONE=1;fenceArt()}
+  if(!ROCK_DONE&&artImg('rock_1')){ROCK_DONE=1;const rs=new Set((artReg.m||{}).rock||[]),cache={};/* boulders: same width and ground line as the old pebble sprite, variant by position */
+    for(const o of OBJ){if(!rs.has(o.img))continue;const k=1+((Math.imul(o.x|0,2654435761)^Math.imul(o.base|0,40503))>>>0)%4,h=o.img.height;
+      const c=cache[k]||(cache[k]=(()=>{const [c,x]=cv(16,16),[hd,hx]=cv(32,32),im=artImg('rock_'+k);hx.drawImage(im,0,0);x.drawImage(im,0,0,16,16);c._hd=hd;return c})());o.y-=16-h;o.img=c}chunkCache.clear()}
+  if(!CAVE_DONE&&artImg('cave_mouth')){CAVE_DONE=1;const o=OBJ.find(q=>q.caveArt);if(o){const w=o.img.width,h=o.img.height,[c,x]=cv(w,h),[hd,hx]=cv(w*2,h*2),im=artImg('cave_mouth');hx.drawImage(im,w-32,h*2-64);x.drawImage(im,w/2-16,h-32,32,32);c._hd=hd;o.img=c;o.y+=20}}/* PNG cave mouth: bottom-centred in the old box, set into the cliff face */
   if(!CLF_DONE&&artImg('cliff_3')){CLF_DONE=1;for(let i=0;i<CLIFF.length;i++)if(CLIFF[i]===3)SOL[i]=0}});/* PNG cliff faces end 1.5 tiles below the edge: the 2nd face row is walkable */
 HOOKS.town.push((L,vis)=>{if(artImg('wf_fall_mid_f1')){wfArt(L,vis);return}for(const [x,y] of WATERFALLS){const px=x*T,py=y*T;if(!vis(px+8,py+8,24))continue;L.push({base:py+T+1,fn:()=>{const sx=SNP(px-cam.x),sy=SNP(py-cam.y);
   R(ctx,'rgba(230,247,255,.85)',sx,sy-6,T,T+6);for(let k=0;k<5;k++){const ox=(k*3+((t*40+k*7)|0))%T,len=4+(k*5)%7,oy=((t*60+k*9)%(T+6))-6;R(ctx,'#BFE6FA',sx+ox,sy+oy,1,len)}
@@ -3599,7 +3627,7 @@ function worldRebuild(){if(WORLD_V===2)return;
   const NEWO=(img,tx,ty,o)=>{const ob=add(Object.assign({img,x:tx*T+8-(img.width>>1),y:(ty+1)*T-img.height,base:(ty+1)*T},o||{}));return ob};
   add({img:makeDam(),x:(DAM.x-6)*T-2,y:(DAM.y+1)*T-44,base:(DAM.y+1)*T,mm:'#9AA6AE',tb:[DAM.x-6,DAM.y-1,DAM.x+6,DAM.y]});
   const hydro=NEWO(makeHydro(),118,41,{mm:'#3A7BD5',tb:[116,38,120,41]});mark(SOL,116,39,120,41);mark(OCC,115,37,121,42);
-  const cave=NEWO(makeCaveMouth(),9,67);SOL[idx(8,67)]=1;SOL[idx(10,67)]=1;SOL[idx(9,67)]=0;CLIFF[idx(9,67)]=2;CLIFF[idx(9,68)]=4;SOL[idx(9,68)]=0;mark(OCC,5,64,13,70);
+  const cave=NEWO(makeCaveMouth(),9,67);cave.caveArt=1;SOL[idx(8,67)]=1;SOL[idx(10,67)]=1;SOL[idx(9,67)]=0;CLIFF[idx(9,67)]=2;CLIFF[idx(9,68)]=4;SOL[idx(9,68)]=0;mark(OCC,5,64,13,70);
   const gh=NEWO(makeGreenhouse(),157,108,{mm:'#9FD4D0',tb:[155,105,159,108]});mark(SOL,155,106,159,108);mark(OCC,152,103,166,114);
   {const [c,g]=cv(14,4*T);for(let j=0;j<4*T;j+=5){R(g,'#5E3E22',0,j+1,14,3);R(g,'#8E5A33',0,j+1,14,1)}for(const rx of [2,10]){R(g,'#4A5258',rx,0,2,4*T);R(g,'#AEB8BE',rx,0,1,4*T)}DEC.push({img:c,x:9*T+1,y:69*T})}/* mine-cart rails out of the crystal cave */
   for(const [x,y] of [[4,70],[14,69],[6,62],[15,60]]){const o={x:x*T+8,y:y*T+12};CRYS_DECOR.push(o)}
@@ -3670,7 +3698,10 @@ function worldRebuild(){if(WORLD_V===2)return;
       for(let xx=6;xx<=L-9;xx+=Math.max(10,Math.round((L-15)/Math.max(1,Math.round((L-15)/13))))){for(const yy of [-1,Wd-5]){R(b,'#3A2618',xx,yy,4,5);R(b,'#7A5230',xx+1,yy,2,4);R(b,'#C08B55',xx+1,yy,2,1)}}
       R(b,'#D9B07A',6,1,L-12,1);R(b,'#D9B07A',6,Wd-3,L-12,1);/* hand rails */
       let img=bc;if(!horiz){const [vc,v]=cv(Wd+4,L);v.translate(Wd+4,0);v.rotate(Math.PI/2);v.drawImage(bc,0,0);img=vc}
-      DEC.push(horiz?{img,x:ax*T-5,y:ay*T}:{img,x:ax*T-4,y:ay*T-5,brg:1})}}
+      DEC.push(horiz?{img,x:ax*T-5,y:ay*T,noArt:'bridge_h_mid_1'}:{img,x:ax*T-4,y:ay*T-5,brg:1,noArt:'bridge_v_mid_1'});
+      {const n=horiz?bx-ax+1:by-ay+1,mid=horiz?(ay+by+1)*T/2:(ax+bx+1)*T/2,pc=k=>k===0?(horiz?'left':'top'):k===n+1?(horiz?'right':'bottom'):'mid_'+(1+(k&1)),nm=horiz?'bridge_h_':'bridge_v_';
+        DEC.push(horiz?pieceDecal((ax-1)*T,mid-1.5*T,(n+2)*T,3*T,'bridge_h_mid_1',g=>{for(let k=0;k<=n+1;k++)g.drawImage(artImg(nm+pc(k)),k*32,0)})
+                      :pieceDecal(mid-1.5*T,(ay-1)*T,3*T,(n+2)*T,'bridge_v_mid_1',g=>{for(let k=0;k<=n+1;k++)g.drawImage(artImg(nm+pc(k)),0,k*32)}))}}}
   /* 8. keep interactables and doors clear, then hedges along non-cliff rims, trees, bushes, rocks */
   for(const it of INT){if(!Number.isFinite(it.x))continue;const tx=Math.floor(it.x/T),ty=Math.floor(it.y/T);mark(OCC,tx-1,ty-1,tx+1,ty+1)}
   for(const d of DOORS){const tx=Math.floor(d.x/T),ty=Math.floor(d.y/T);mark(OCC,tx-1,ty,tx+1,ty+2)}
