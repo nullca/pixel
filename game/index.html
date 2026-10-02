@@ -637,25 +637,11 @@ function mark(a,x0,y0,x1,y1){for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(in
 for(let y=0;y<MH;y++)for(let x=0;x<MW;x++)G[idx(x,y)]=isForest(x,y)?4:0;
 const riverX=y=>85+Math.round(Math.sin(y*.09+.6)*1.6+Math.sin(y*.23)*.7);/* meandering river; width breathes 3-4 tiles */
 for(let y=0;y<MH;y++){const c=riverX(y),wl=Math.sin(y*.31+1)>.35?2:1;for(let x=c-wl;x<=c+1;x++){const i=idx(x,y);G[i]=3;RIV[i]=1;SOL[i]=1}}
-/* organic roads: each road is a chain of junction nodes; between two nodes the centre line bends in a gentle arc
-   (zero offset at the nodes, so roads still meet where they used to), width breathes with noise, junctions are rounded */
-{const rn=trng(7,3,11),road=(x,y)=>{if(inB(x,y))G[idx(x,y)]=1};
-  const disc=(cx,cy,r)=>{for(let y=Math.floor(cy-r-1);y<=cy+r+1;y++)for(let x=Math.floor(cx-r-1);x<=cx+r+1;x++)if(Math.hypot(x-cx,y-cy)<=r)road(x,y)};
-  const line=(pts,w,amp)=>{for(let i=0;i+1<pts.length;i++){const [ax,ay]=pts[i],[bx,by]=pts[i+1],L=Math.hypot(bx-ax,by-ay),nx=-(by-ay)/L,ny=(bx-ax)/L;
-      const A=Math.min(2.4,L*.11)*(rn()<.5?-1:1)*(.55+rn()*.45)*amp,ph=rn()*6.28;
-      for(let t=0;t<=1;t+=.3/L){const o=A*Math.sin(Math.PI*t),wv=w/2+.45*Math.sin(t*L*.33+ph)+.25*Math.sin(t*L*.9+ph*2);disc(ax+(bx-ax)*t+nx*o,ay+(by-ay)*t+ny*o,Math.max(.9,wv))}}
-    for(const [x,y] of pts)disc(x,y,w/2+.7)};
-  line([[0,31],[16,31],[29.5,31],[43,31],[63,31],[106,31],[127,31]],3.2,1);
-  line([[0,63],[43,63],[63,63],[127,63]],3.2,1);
-  line([[43,0],[43,31],[43,49],[43,63],[43,95]],3.2,1);
-  line([[8,49],[30,49],[43,49],[56,49]],3,.8);line([[70,49],[95,49],[127,49]],3,.35);
-  line([[63,18],[63,31],[63,38]],3,.6);line([[63,58],[63,63],[63,72]],3,.5);
-  line([[16,15],[16,31]],2.6,.7);line([[29.5,19],[29.5,31]],2.2,.7);line([[106,11],[106,31]],3,.6);
+{const road=(x,y)=>{if(inB(x,y))G[idx(x,y)]=1};
   /* market square: rounded blob with a ragged edge instead of a rectangle */
   for(let y=37;y<=57;y++)for(let x=5;x<=33;x++){const a=Math.atan2(y-47,x-19),r=Math.hypot((x-19)/12.4,(y-47)/8.2),edge=1+.06*Math.sin(a*5+1)+.04*Math.sin(a*9);if(r<=edge)road(x,y)}}
-fillG(62,42,64,44,1);fillG(108,21,109,22,1);
-fillG(93,41,94,47,1);fillG(104,39,105,47,1);fillG(115,39,116,47,1);fillG(123,45,124,47,1);fillG(93,58,94,61,1);fillG(123,59,124,61,1);fillG(101,51,103,61,1);fillG(118,51,118,53,1);for(let y=50;y<=60;y++)for(let x=96;x<=108;x++)if(Math.hypot(x-102,(y-55)*1.15)<=4.6)G[idx(x,y)]=1;
-fillG(115,65,117,71,1);
+
+for(let y=50;y<=60;y++)for(let x=96;x<=108;x++)if(Math.hypot(x-102,(y-55)*1.15)<=4.6)G[idx(x,y)]=1;
 function field(x0,y0,x1,y1){for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=idx(x,y);const dike=x===x0||x===x1||y===y0||y===y1||(x-x0)%6===0||(y-y0)%5===0;G[i]=dike?7:5;SOL[i]=0}}
 field(4,68,20,86);field(24,68,38,86);
 const neon=(x0,y0,x1,y1)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(inB(x,y)&&G[idx(x,y)]===4)G[idx(x,y)]=8};neon(48,5,78,5);neon(48,5,48,26);neon(78,5,78,26);neon(48,26,78,26);neon(49,13,55,13);neon(71,16,77,16);
@@ -723,8 +709,7 @@ add({img:makeStage(),x:AX-50,y:AY+14-56,base:AY+14,mm:'#9E2F22',tb:[60,77,66,80]
 const lamp=makeLamp(),bench=makeBench();
 const addLamp=(lx,ly)=>{const tx=lx/T|0,ty=(ly-2)/T|0;if(SOL[idx(tx,ty)])return;add({img:lamp,x:lx-6,y:ly-31,base:ly,light:1});SOL[idx(tx,ty)]=1;OCC[idx(tx,ty)]=1};
 [[FX-88,FY-88],[FX+88,FY-88],[FX-88,FY+92],[FX+88,FY+92],[FX-158,FY+4],[FX+158,FY+4],[FX-40,FY+172],[FX+40,FY+172]].forEach(([lx,ly])=>addLamp(lx,ly));
-for(const [tx,ty] of [[10,29],[24,29],[36,29],[50,29],[74,29],[96,29],[118,29],[10,61],[24,61],[36,61],[50,61],[74,61],[96,61],[112,61],[96,42],[118,47],[96,57],[118,58],[8,39],[30,39],[8,55],[30,55]])
-  if(G[idx(tx,ty)]!==3)addLamp(tx*T+8,ty*T+12);
+/* street lamps along roads are placed by the road router (ROAD_LAMPS) */
 function makePlanter(){const [c,x]=cv(30,32);x.translate(1,1);pell(x,14,24,13,6,'#9C8D70');pell(x,14,23,12,5,'#CFC5AD');pell(x,14,21,11,4,'#B9AB8E');pell(x,14,20,10,3,'#5E3E22');pcirc(x,14,13,9,'#3F8A3A');pcirc(x,11,11,6,'#5DAE4A');pcirc(x,18,12,5,'#4C9A3E');
   for(const [fx,fy,col] of [[8,9,'#F26B6B'],[14,6,'#FFE08A'],[19,10,'#F5A3C7'],[11,15,'#FFFFFF'],[17,16,'#F26B6B']]){R(x,col,fx,fy,2,2);R(x,'#F2C14E',fx,fy,1,1)}return outline(c,'#1B1510')}
 {const pl=makePlanter();for(const [px,py] of [[FX-150,FY-74],[FX+150,FY-74],[FX-150,FY+86],[FX+150,FY+86],[FX-104,FY+140],[FX+104,FY+140]]){add({img:pl,x:px-15,y:py-30,base:py});SOL[idx(px/T|0,(py-2)/T|0)]=1}}
@@ -882,8 +867,37 @@ const BOAT_IMG=makeBoat();
 const HGT=new Uint8Array(MW*MH),CLIFF=new Uint8Array(MW*MH);
 function terrace(x0,y0,x1,y1,sd){for(let x=x0;x<=x1;x++){const k=Math.min(x-x0,x1-x);const corner=k<2?2-k:0;const wob=Math.round(Math.sin(x*.5+sd)*.7+Math.sin(x*.19+sd*3)*.7);const yb=y1-corner+Math.min(0,wob);for(let y=y0+(k<1?1:0);y<=yb;y++)HGT[idx(x,y)]=1}}
 terrace(106,66,124,78,1);terrace(2,2,10,9,2);for(let y=33;y<=43;y++)for(let x=89;x<=118;x++)HGT[idx(x,y)]=1;
-for(let y=1;y<MH-1;y++)for(let x=0;x<MW;x++){const i=idx(x,y);if(HGT[idx(x,y-1)]&&!HGT[i]){CLIFF[i]=1;SOL[i]=1;OCC[i]=1;const j=idx(x,y+1);if(!HGT[j]){CLIFF[j]=3;SOL[j]=1;OCC[j]=1}}}
-for(const sx of [111,112,120,6,7,93,94,104,105,115,116])for(let y=1;y<MH-1;y++)if(CLIFF[idx(sx,y)]===1){CLIFF[idx(sx,y)]=2;SOL[idx(sx,y)]=0;if(CLIFF[idx(sx,y+1)]===3){CLIFF[idx(sx,y+1)]=4;SOL[idx(sx,y+1)]=0}break}
+/* north plateau (knowledge district, cyber forest, data centre): wavy cliff edge around row 25; the river falls over it as a waterfall */
+for(let x=0;x<MW;x++){const yb=24+Math.round(Math.sin(x*.11+.4)*1.3+Math.sin(x*.37)*.6);for(let y=0;y<=yb;y++)HGT[idx(x,y)]=1}
+for(let y=1;y<MH-1;y++)for(let x=0;x<MW;x++){const i=idx(x,y);if(RIV[i])continue;if(HGT[idx(x,y-1)]&&!HGT[i]){CLIFF[i]=1;SOL[i]=1;OCC[i]=1;const j=idx(x,y+1);if(!HGT[j]){CLIFF[j]=3;SOL[j]=1;OCC[j]=1}}}
+/* ---------- routed roads: winding paths between doors and landmarks (Dijkstra over a noisy cost field), shared trunks, stairs where they cross a cliff ---------- */
+const ROAD_LAMPS=[];
+{const N=MW*MH,nz=(x,y)=>.5+.25*Math.sin(x*.21+y*.07+1.3)+.15*Math.sin(y*.29-x*.11)+.1*Math.sin((x+y)*.53);
+  const cost=i=>{const g=G[i];if(RIV[i])return 26;if(CLIFF[i])return 16;if(g===3||g===9||g===5)return Infinity;if(SOL[i])return Infinity;if(g===1)return .35;if(g===2)return .7;if(g===4||g===8)return 3;if(g===7)return 1.4;const x=i%MW,y=i/MW|0;return 1+2.4*nz(x,y)};
+  const route=(sx,sy,ex,ey)=>{const dist=new Float64Array(N).fill(Infinity),prev=new Int32Array(N).fill(-1),s=idx(sx,sy),e=idx(ex,ey);dist[s]=0;const H=[[0,s]];
+    const push=(d,i)=>{H.push([d,i]);let k=H.length-1;while(k){const p=(k-1)>>1;if(H[p][0]<=H[k][0])break;[H[p],H[k]]=[H[k],H[p]];k=p}};
+    const pop=()=>{const top=H[0],last=H.pop();if(H.length){H[0]=last;let k=0;for(;;){const l=2*k+1,r=l+1;let m=k;if(l<H.length&&H[l][0]<H[m][0])m=l;if(r<H.length&&H[r][0]<H[m][0])m=r;if(m===k)break;[H[m],H[k]]=[H[k],H[m]];k=m}}return top};
+    while(H.length){const [d,i]=pop();if(d>dist[i])continue;if(i===e)break;const x=i%MW,y=i/MW|0;
+      for(const [dx,dy,f] of [[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.42],[1,-1,1.42],[-1,1,1.42],[-1,-1,1.42]]){const nx=x+dx,ny=y+dy;if(!inB(nx,ny))continue;const j=idx(nx,ny);
+        if(dx&&dy&&(cost(idx(x+dx,y))===Infinity||cost(idx(x,y+dy))===Infinity))continue;let c=j===e?1:cost(j);if(c===Infinity)continue;if(dx&&dy&&(CLIFF[j]||RIV[j]))c*=3;const nd=d+c*f;if(nd<dist[j]){dist[j]=nd;prev[j]=i;push(nd,j)}}}
+    const pts=[];for(let i=e;i>=0;i=prev[i]){pts.push([i%MW+.5,(i/MW|0)+.5]);if(i===s)break}return pts.length>1?pts.reverse():null};
+  const smooth=p=>{for(let it=0;it<3;it++){const q=[p[0]];for(let i=0;i+1<p.length;i++){const [ax,ay]=p[i],[bx,by]=p[i+1];q.push([ax*.75+bx*.25,ay*.75+by*.25],[ax*.25+bx*.75,ay*.25+by*.75])}q.push(p[p.length-1]);p=q}return p};
+  const paint=(x,y)=>{if(!inB(x,y))return;const i=idx(x,y),g=G[i];if(RIV[i]){G[i]=6;BRG[i]=1;SOL[i]=0;return}if(g===0||g===4||g===8)G[i]=1};
+  const disc=(cx,cy,r)=>{for(let y=Math.floor(cy-r);y<=cy+r;y++)for(let x=Math.floor(cx-r);x<=cx+r;x++)if(Math.hypot(x+.5-cx,y+.5-cy)<=r)paint(x,y)};
+  const R=[ // [from, to, width]
+    [[52,49],[19,47],3],[[19,47],[16,17],2.6],[[16,17],[37,16],2.4],[[29,21],[24,28],2.2],[[19,47],[33,30],2.6],[[33,30],[63,22],2.6],[[63,22],[50,43],2.6],[[50,43],[52,49],2.6],
+    [[74,49],[80,43],2.4],[[74,49],[100,49],3],[[100,49],[93,42],2.2],[[100,49],[104,40],2.2],[[100,49],[115,40],2.2],[[100,49],[123,46],2.2],[[100,49],[93,59],2.2],[[100,49],[123,60],2.2],
+    [[100,49],[101,30],2.8],[[101,30],[106,13],2.6],[[101,30],[110,22],2.2],[[100,49],[111,64],2.8],[[111,64],[116,75],2.4],[[111,64],[101,76],2.2],
+    [[63,60],[63,67],3],[[63,60],[56,61],2.4],[[63,60],[32,65],2.8],[[32,65],[5,62],2.4],[[32,65],[21,67],2.2],[[56,61],[48,97],2.6],[[48,97],[66,97],2.2],[[111,64],[85,97],2.4]];
+  let lampN=0;
+  for(const [[ax,ay],[bx,by],w] of R){const p=route(ax,ay,bx,by);if(!p)continue;const q=smooth(p);let acc=0;
+    for(let k=0;k<q.length;k++){const [x,y]=q[k],r=w/2+.32*Math.sin(k*.09+ax)+.18*Math.sin(k*.31+by);disc(x,y,Math.max(.95,r));
+      if(k){acc+=Math.hypot(x-q[k-1][0],y-q[k-1][1]);if(acc>11&&k+3<q.length){acc=0;const [nx,ny]=q[k+3],dx=nx-x,dy=ny-y,L=Math.hypot(dx,dy)||1,side=(lampN++%2)?1:-1;ROAD_LAMPS.push([Math.round(x-dy/L*side*(w/2+1.2)-.5),Math.round(y+dx/L*side*(w/2+1.2)-.5)])}}}}
+  /* stairs wherever a road crosses a cliff face (both rows of the face) */
+  for(let y=1;y<MH-1;y++)for(let x=0;x<MW;x++){const i=idx(x,y);if(G[i]!==1||!CLIFF[i])continue;
+    if(CLIFF[i]===1){CLIFF[i]=2;SOL[i]=0;const j=idx(x,y+1);if(CLIFF[j]===3){CLIFF[j]=4;SOL[j]=0}}else if(CLIFF[i]===3){CLIFF[i]=4;SOL[i]=0;const j=idx(x,y-1);if(CLIFF[j]===1){CLIFF[j]=2;SOL[j]=0}}}}
+for(const [x,y] of ROAD_LAMPS){if(!inB(x,y))continue;const i=idx(x,y);if(G[i]===0&&!SOL[i]&&!OCC[i]&&!CLIFF[i]&&!HGT[idx(x,Math.min(MH-1,y+1))]===!HGT[i])addLamp(x*T+8,y*T+12)}
+for(const [sx,sy0] of [[111,60],[112,60],[120,60],[6,0],[7,0]])for(let y=Math.max(1,sy0);y<MH-1;y++)if(CLIFF[idx(sx,y)]===1){CLIFF[idx(sx,y)]=2;SOL[idx(sx,y)]=0;if(CLIFF[idx(sx,y+1)]===3){CLIFF[idx(sx,y+1)]=4;SOL[idx(sx,y+1)]=0}break}
 {const rk=artReg('rock',makeRock());for(let y=1;y<MH-2;y++)for(let x=1;x<MW-1;x++){if(CLIFF[idx(x,y)]!==3)continue;const j=idx(x,y+1);if((G[j]===0)&&!OCC[j]&&!SOL[j]&&trng(x,y,21)()<.22){add({img:rk,x:x*T+8-8,y:(y+2)*T-12,base:(y+2)*T-2});SOL[j]=1;OCC[j]=1}}}
 {const sala=artReg('sala',makeSala());add({img:sala,x:5*T+8-35,y:7*T-58,base:7*T,mm:'#C0412E',tb:[4,4,7,6]});mark(SOL,4,5,7,6);mark(OCC,3,3,8,7)}
 /* ---------- shuttle stops (fast travel) ---------- */
