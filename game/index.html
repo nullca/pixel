@@ -383,7 +383,10 @@ const rnd=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)/42
 function trng(a,b,k){let s=(Math.imul(a,73856093)^Math.imul(b,19349663)^Math.imul(k,83492791))>>>0;return()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 // PNG art overrides: artReg(name, canvas) marks a code-drawn sprite as replaceable; game/assets/manifest.json maps
 // name -> PNG. When a PNG loads it is painted into every registered canvas (same size), so all users update in place.
-function artReg(n,c){const m=artReg.m||(artReg.m={});(m[n]||(m[n]=[])).push(c);return c}
+function artReg(n,c){if(!n)return c;const m=artReg.m||(artReg.m={});(m[n]||(m[n]=[])).push(c);const im=artReg.img&&artReg.img[n];if(im)artPaint(c,im);return c}
+// paint a PNG into a sprite canvas: same size → 1:1; otherwise keep aspect, bottom-centred (ground line stays put)
+function artPaint(c,img){const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.imageSmoothingEnabled=false;g.save();if(c._artFlip){g.translate(c.width,0);g.scale(-1,1)}
+  const k=Math.min(c.width/img.width,c.height/img.height),w=Math.round(img.width*k),h=Math.round(img.height*k);g.drawImage(img,Math.round((c.width-w)/2),c.height-h,w,h);g.restore()}
 // animation frames: F = [[right frames...],[left frames...]] (frame 0 = idle, 1 = walk); PNG names "<n>@right_idle" etc.
 function artFr(n,F){const P=['idle','walk_1'];F[0].forEach((c,i)=>artReg(n+'@right_'+P[i],c));if(F[1]!==F[0])F[1].forEach((c,i)=>artReg(n+'@left_'+P[i],c));return F}
 function artRegFlip(n,c){c._artFlip=1;return artReg(n,c)}
@@ -421,6 +424,28 @@ makeStatue=artWrap(makeStatue,'statue');
 makePaperLantern=artWrap(makePaperLantern,'paper_lantern');
 makeCrystalBall=artWrap(makeCrystalBall,'crystal_ball');
 makeFence=artWrap(makeFence,v=>v?'fence_v':'fence_h');
+makeOfficeDesk=artWrap(makeOfficeDesk,'office_desk');
+makeSofa=artWrap(makeSofa,'sofa');
+makeShelf=artWrap(makeShelf,'bookshelf');
+makeCabinet=artWrap(makeCabinet,'cabinet');
+makeCounter=artWrap(makeCounter,'counter');
+makeRack=artWrap(makeRack,'server_rack');
+makeCoffeeM=artWrap(makeCoffeeM,'coffee_machine');
+makeCooler=artWrap(makeCooler,'water_cooler');
+makePlantTall=artWrap(makePlantTall,'plant_tall');
+makeAquarium=artWrap(makeAquarium,'aquarium');
+makeArcade=artWrap(makeArcade,'arcade');
+makeTrophy=artWrap(makeTrophy,'trophy');
+makeTrophyBig=artWrap(makeTrophyBig,'trophy_big');
+makeSafe=artWrap(makeSafe,'safe');
+makeVault=artWrap(makeVault,'vault');
+makeStairsUp=artWrap(makeStairsUp,'stairs_up');
+makeStairsDown=artWrap(makeStairsDown,'stairs_down');
+makeBarn=artWrap(makeBarn,'barn');
+makeCoop=artWrap(makeCoop,'coop');
+makeSpiritHouse=artWrap(makeSpiritHouse,'spirit_house');
+// dept houses: PNG only for 1-floor levels (0-3); upgraded 2-3 floor / gold houses keep the code art
+makeDeptHouse=artWrap(makeDeptHouse,(lb,rf,rd,lv)=>(lv||0)<4?'house_'+String(lb).toLowerCase():null);
 function cv(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=false;return [c,x]}
 function R(x,c,a,b,w,h){x.fillStyle=c;x.fillRect(a,b,w,h)}
 function pcirc(x,cx,cy,r,c){x.fillStyle=c;for(let y=-r;y<=r;y++){const w=Math.floor(Math.sqrt(Math.max(0,r*r-y*y+r*.8)));x.fillRect(cx-w,cy+y,w*2+1,1)}}
@@ -581,7 +606,7 @@ function paintChar(x,p,dir,f){x.save();x.translate(1,1);
   else if(p.hatType==='cap'){R(x,p.hatCol,3,hy-1,11,3);R(x,shade(p.hatCol,.3),4,hy-1,6,1);if(dir===0)R(x,shade(p.hatCol,-.25),3,hy+2,11,1);else if(dir===1)R(x,shade(p.hatCol,-.25),1,hy+1,5,1)}
   else if(p.hatType==='beanie'){R(x,p.hatCol,3,hy-2,11,4);R(x,shade(p.hatCol,.35),3,hy+1,11,1);R(x,'#FFFFFF',7,hy-3,3,1)}
   x.restore()}
-function makeChar(p){if(p.skirt&&!p._sk){p=Object.assign({},p,{_sk:1})}const out=[];for(const d of [0,1,3]){out[d]=[];for(let f=0;f<4;f++){const [c,x]=cv(18,24);paintChar(x,p,d,f);out[d][f]=outline(c,'#141A22')}}out[2]=out[1].map(flipH);return out}
+function makeChar(p){if(p.skirt&&!p._sk){p=Object.assign({},p,{_sk:1})}const out=[];for(const d of [0,1,3]){out[d]=[];for(let f=0;f<4;f++){const [c,x]=cv(18,24);paintChar(x,p,d,f);out[d][f]=outline(c,'#141A22')}}out[2]=out[1].map(flipH);out.pal=p;return out}
 function makePaksa(fr){const [c,x]=cv(24,20);x.translate(1,1);
   R(x,'#157A5B',15,9,5,2);R(x,'#157A5B',17,7,3,2);R(x,'#F2C14E',19,6,1,2);R(x,'#F2C14E',20,10,1,1);
   pell(x,11,10,6,5,'#1D9E75');pell(x,10,12,4,3,'#A8E8D2');
@@ -661,7 +686,7 @@ const OBJ=[];
 const add=(o)=>{OBJ.push(o);return o};
 add({img:artReg('hq',makeHQ()),x:FX-121,y:42*T-149,base:42*T,mm:'#2B8878',tb:[56,34,70,41]});mark(SOL,56,36,70,41);mark(OCC,55,32,72,43);mark(SOL,56,42,59,43);mark(SOL,68,42,71,43);
 add({img:artReg('library',makeLibrary()),x:12*T-1,y:16*T-97,base:16*T,mm:'#5E4DA8',tb:[12,11,20,15]});mark(SOL,12,12,20,15);mark(OCC,11,8,21,16);
-add({img:makeHouse('#5E4DA8','#453789','EDU'),x:26*T-1,y:20*T-79,base:20*T,mm:'#5E4DA8',tb:[26,16,30,19]});mark(SOL,26,18,30,19);mark(OCC,25,14,31,20);mark(SOL,21,21,24,22);mark(OCC,20,20,25,23);
+add({img:artReg('house_edu',makeHouse('#5E4DA8','#453789','EDU')),x:26*T-1,y:20*T-79,base:20*T,mm:'#5E4DA8',tb:[26,16,30,19]});mark(SOL,26,18,30,19);mark(OCC,25,14,31,20);mark(SOL,21,21,24,22);mark(OCC,20,20,25,23);
 const HOUSES=[['IT','#3A7BD5','#2A5DA6',90,41,'บ้านแผนก IT','สมาชิกแผนก IT ช่วยกันแต่งบ้านหลังนี้ ยิ่งทำเควสต์ครบ บ้านยิ่งได้ของตกแต่งใหม่'],
   ['HR','#1D9E75','#157A5B',101,39,'บ้านแผนก HR','บ้านของทีม HR ตอนนี้มีสวนดอกไม้เล็กๆ ที่ได้จากเควสต์เมื่อเดือนก่อน'],
   ['FIN','#F29B38','#D07A1E',112,39,'บ้านแผนก FIN','บ้านทีมการเงิน หน้าต่างสะอาดเป๊ะ ทุกอย่างเรียงเป็นระเบียบเหมือนงบดุล'],
@@ -2943,11 +2968,27 @@ $('layPush').addEventListener('click',async()=>{const repo=$('layRepo').value.tr
 if(typeof fetch==='function'&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol))
   fetch('layout.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d==='object'){LAY.pub={v:1,obj:d.obj||{},dec:d.dec||{},pts:d.pts||{}};if(!LAY.on)layApply(LAY.pub)}}).catch(()=>{});
 if(typeof location!=='undefined'&&/[?&]edit\b/.test(location.search||''))setTimeout(layOpen,1200);
+/* ---- player PNG (08 player_base): recoloured with the player's look palette (shirt/hair/pants/skin/shoes) ---- */
+const PLR_DIR=['down','left','right','up'],PLR_POSE=['idle','walk_1','idle','walk_2'];let plrArtFor=null;
+function plrRecolor(img,p,dir){const c=document.createElement('canvas');c.width=18;c.height=24;const g=c.getContext('2d');g.drawImage(img,0,0);const id=g.getImageData(0,0,18,24),d=id.data;
+  const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),SK={'f4c593':p.skin,'f8d09f':p.skin,'bb9b83':p.skinD,'b5b6b4':p.shirt,'cabaaa':p.shirt,'6c6c6b':p.shirtD};
+  for(let y=0;y<24;y++)for(let x=0;x<18;x++){const k=(y*18+x)*4;if(d[k+3]<128){d[k+3]=0;continue}d[k+3]=255;
+    const h=[d[k],d[k+1],d[k+2]].map(v=>v.toString(16).padStart(2,'0')).join('');let col=SK[h];if(col&&y>=20&&(h==='b5b6b4'||h==='cabaaa'||h==='6c6c6b'))col=p.pantsD;
+    if(!col){const lum=(d[k]+d[k+1]+d[k+2])/3;if(lum<16)continue;const hi=lum>42;col=y<=12?(hi?p.hair:p.hairD):y>=21?p.shoes:y>=16?(hi?p.pants:p.pantsD):null;if(!col)continue}
+    if(!/^#[0-9a-fA-F]{6}$/.test(col||''))continue;const [r,gg,b]=hx(col);d[k]=r;d[k+1]=gg;d[k+2]=b}
+  g.putImageData(id,0,0);return c}
+function plrArt(){const fr=player.fr;if(!fr||!fr.pal||plrArtFor===fr||!artReg.img)return;const imgs=[];
+  for(const dn of PLR_DIR)for(const ps of ['idle','walk_1','walk_2']){const im=artImg('player@'+dn+'_'+ps);if(!im)return;imgs.push(im)}
+  plrArtFor=fr;const cache={};
+  for(let d=0;d<4;d++)for(let f=0;f<4;f++){const c=fr[d]&&fr[d][f];if(!c)continue;const key=PLR_DIR[d]+'_'+PLR_POSE[f];
+    const src=cache[key]||(cache[key]=plrRecolor(artImg('player@'+key),fr.pal,d));const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.drawImage(src,0,0)}
+  try{actx.clearRect(0,0,20,20);actx.drawImage(fr[0][0],1,2)}catch(e){}}
+HOOKS.update.push(()=>{try{plrArt()}catch(e){plrArtFor=player.fr}});
 /* ---- PNG art overrides (game/assets/manifest.json: {name: "set/file.png"}); ?art=0 shows the code-drawn art ---- */
 if(typeof fetch==='function'&&typeof Image!=='undefined'&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&!/[?&]art=0\b/.test(location.search||''))
   fetch('assets/manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(man=>{if(!man||typeof man!=='object')return;
     for(const n in man){const img=new Image();img.onload=()=>{(artReg.img||(artReg.img={}))[n]=img;
-      for(const c of (artReg.m||{})[n]||[]){const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.imageSmoothingEnabled=false;g.save();if(c._artFlip){g.translate(c.width,0);g.scale(-1,1)}g.drawImage(img,0,0,c.width,c.height);g.restore()}chunkCache.clear()};img.src='assets/'+man[n]}}).catch(()=>{});
+      for(const c of (artReg.m||{})[n]||[])artPaint(c,img);chunkCache.clear()};img.src='assets/'+man[n]}}).catch(()=>{});
 
 /* ================= retention: mailbox, login calendar, season pass, level rewards, story ================= */
 S.mail=Array.isArray(S.mail)?JSON.parse(JSON.stringify(S.mail)):[];S.login=S.login||{last:null,streak:0};S.story=S.story||{ch:0,step:0,done:[]};if(S.lvRewarded==null)S.lvRewarded=S.lv;
