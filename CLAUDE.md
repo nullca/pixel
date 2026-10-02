@@ -58,6 +58,12 @@ Keys are each object's original `x,base,width`, so **moving an object in code or
 Decals whose position is a code constant (`FX`, `PX`, `LX`, `AX`, pier, badminton court) are locked.
 Hidden objects stay in `OBJ` (flag `o.hide`); never splice `OBJ` from the editor. `layout.json` is only fetched over http(s), not `file://`.
 
+### PNG art overrides
+Sprites are drawn in code, but any canvas wrapped in `artReg('name', makeX())` can be replaced by a PNG listed in
+`game/assets/manifest.json` (`{"name": "set/file.png"}`). The PNG is painted into the existing canvas, so it **must keep the
+original sprite size** (positions, collisions and `layout.json` stay valid). `?art=0` shows the code-drawn art for comparison.
+Loaded over http(s) only. To add a set: copy PNGs to `game/assets/<set>/`, add `artReg` at the sprite's creation site, list it in the manifest.
+
 ### Save data
 `snapshot()` / `restore(d)` (search `function snapshot`). **Any new field in `S` that must persist has to be added to both.**
 `restore` deep-clones its input first (cloud data can be frozen). Saves go to `localStorage` and the artifact DB.
