@@ -957,7 +957,12 @@ const noise=(x,y)=>Math.sin(x*.33+Math.cos(y*.21)*2.1)+Math.cos(y*.29-x*.13)*.9;
 // PNG ground tiles (assets/01_ground_tiles): center tile per ground type, plus an edge/corner tile where it meets grass
 const TILE_ART={0:'tile_grass',1:'tile_path',2:'tile_plaza',3:'tile_water',4:'tile_forest',5:'tile_paddy',6:'tile_bridge',7:'tile_dike',8:'tile_neon',9:'tile_sea',10:'tile_sand'};
 function tileArt(g,tx,ty,px,py,i,v){const nm=TILE_ART[v];if(!nm||(v===6&&!BRG[i]))return false;
-  if(v===0){const im=artImg('tile_grass_'+(1+(((tx*7)^(ty*13)^(tx*ty))&3)))||artImg('tile_grass');if(!im)return false;g.drawImage(im,px,py);return true}
+  if(v===0){const h=Math.imul(tx,73856093)^Math.imul(ty,19349663),hu=h>>>0;
+    if(artImg('grass_1')){/* HD grass set T01: 32px variants (6/7 have flowers), darker near forest, sparse overlays */
+      const nearF=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>inB(tx+dx,ty+dy)&&G[idx(tx+dx,ty+dy)]===4);
+      const im=nearF?artImg('grass_dark_'+(1+hu%4)):artImg('grass_'+[1,2,3,4,5,8,1,2,3,4,5,8,6,7][hu%14]);if(!im)return false;g.drawImage(im,px,py,T,T);
+      const o=(hu>>>9)%100,ov=o<7?'tuft_'+(1+o%4):o<10?'flowers_'+(1+o%4):o<12?'pebbles_'+(1+o%2):o<13?'leaves_'+(1+o%2):null,oi=ov&&artImg(ov);if(oi)g.drawImage(oi,px,py,T,T);return true}
+    const im=artImg('tile_grass_'+(1+(((tx*7)^(ty*13)^(tx*ty))&3)))||artImg('tile_grass');if(!im)return false;g.drawImage(im,px,py);return true}
   const im=artImg(nm);if(!im)return false;g.drawImage(im,px,py);
   const gr=(dx,dy)=>inB(tx+dx,ty+dy)&&G[idx(tx+dx,ty+dy)]===0,N=gr(0,-1),S=gr(0,1),W=gr(-1,0),E=gr(1,0);
   const k=N&&W?'nw':N&&E?'ne':S&&W?'sw':S&&E?'se':N?'n':S?'s':W?'w':E?'e':gr(-1,-1)?'inner_nw':gr(1,-1)?'inner_ne':gr(-1,1)?'inner_sw':gr(1,1)?'inner_se':null;
@@ -994,7 +999,7 @@ function paintTile(g,tx,ty,px,py){
   const fl=(tx>=90&&ty>=66)?.35:.07;
   if(v===0&&r()<fl){const a=px+3+ri(9),b=py+3+ri(9),fc=['#FFFFFF','#F7D154','#F5A3C7','#F26B6B','#B7A4FF'][ri(5)];R(g,'#3F8A3A',a+1,b+2,1,2);R(g,fc,a,b+1,3,1);R(g,fc,a+1,b,1,3);R(g,'#F2C14E',a+1,b+1,1,1)}}
 function paintShadow(g,o){if(o.ell){pell(g,o.x+o.ell[0],o.base-2,o.ell[1],o.ell[2],'rgba(16,40,20,.28)');return}if(o.tree)pell(g,o.x+21,o.base-2,13,4,'rgba(16,40,20,.28)');else if(o.img.width>40)R(g,'rgba(16,40,20,.22)',o.x+6,o.base-3,o.img.width-4,6);else pell(g,o.x+(o.img.width>>1)+1,o.base-1,o.img.width>>1,2,'rgba(16,40,20,.25)')}
-function paintChunk(cx,cy){const [c,g]=cv(CPX,CPX);const x0=cx*CPX,y0=cy*CPX;
+function paintChunk(cx,cy){const HK=artImg('grass_1')?2:1;const [c,g]=cv(CPX*HK,CPX*HK);if(HK>1)g.scale(HK,HK);const x0=cx*CPX,y0=cy*CPX;/* HD ground: chunk painted at 2x so 32px PNG tiles keep full detail */
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++)paintTile(g,tx,ty,tx*T-x0,ty*T-y0);
   for(const d of DEC)if(!d.hide&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img,d.x-x0,d.y-y0);
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty),px=tx*T-x0,py=ty*T-y0;
@@ -2988,7 +2993,7 @@ HOOKS.update.push(()=>{try{plrArt()}catch(e){plrArtFor=player.fr}});
 if(typeof fetch==='function'&&typeof Image!=='undefined'&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&!/[?&]art=0\b/.test(location.search||''))
   fetch('assets/manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(man=>{if(!man||typeof man!=='object')return;
     for(const n in man){const img=new Image();img.onload=()=>{(artReg.img||(artReg.img={}))[n]=img;
-      for(const c of (artReg.m||{})[n]||[])artPaint(c,img);chunkCache.clear()};img.src='assets/'+man[n]}}).catch(()=>{});
+      for(const c of (artReg.m||{})[n]||[])artPaint(c,img);clearTimeout(artReg.ct);artReg.ct=setTimeout(()=>chunkCache.clear(),60)};img.src='assets/'+man[n]}}).catch(()=>{});
 
 /* ================= retention: mailbox, login calendar, season pass, level rewards, story ================= */
 S.mail=Array.isArray(S.mail)?JSON.parse(JSON.stringify(S.mail)):[];S.login=S.login||{last:null,streak:0};S.story=S.story||{ch:0,step:0,done:[]};if(S.lvRewarded==null)S.lvRewarded=S.lv;
@@ -3403,7 +3408,7 @@ function drawCharEnt(e){if(e===player&&player.sit){const o=player.sit.o,sx=SNP(e
 function draw(){
   if(scene!=='town'){drawInterior();return}
   const c0=Math.max(0,Math.floor(cam.x/CPX)),c1=Math.min(NCX-1,Math.floor((cam.x+cw-1)/CPX)),r0=Math.max(0,Math.floor(cam.y/CPX)),r1=Math.min(NCY-1,Math.floor((cam.y+ch-1)/CPX));
-  for(let cy=r0;cy<=r1;cy++)for(let cx=c0;cx<=c1;cx++)ctx.drawImage(getChunk(cx,cy),cx*CPX-cam.x,cy*CPX-cam.y);
+  for(let cy=r0;cy<=r1;cy++)for(let cx=c0;cx<=c1;cx++)ctx.drawImage(getChunk(cx,cy),cx*CPX-cam.x,cy*CPX-cam.y,CPX,CPX);
   const vis=(x,y,m)=>x>cam.x-m&&x<cam.x+cw+m&&y>cam.y-m&&y<cam.y+ch+m;
   for(const s of SPK){if(!vis(s.x,s.y,4))continue;const v=Math.sin(t*1.6+s.p);if(v>.6)R(ctx,'rgba(255,255,255,.8)',s.x-cam.x,s.y-cam.y,v>.86?3:2,1)}
   if(vis(FX,FY,40)){const fx=FX-cam.x,fy=FY-cam.y,rr=(t*10)%12;ctx.strokeStyle=`rgba(220,245,255,${(.5*(1-rr/12)).toFixed(2)})`;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(fx,fy,5+rr,(5+rr)*.8,0,0,6.283);ctx.stroke();
