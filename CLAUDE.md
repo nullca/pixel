@@ -48,6 +48,12 @@ Approximate section order (search for the `/* ---- name ---- */` comments):
 - Rewards: `gain(xp,coins)`; quest progress `prog(id)`; popups `pop(text,color)`, `banner(title,sub)`, `burst(x,y,colors,n)`; sound `sfx(name)`.
 - Economy knobs: `CFG` (defaults `CFG_DEF`), editable in-game at Map → "ตั้งค่าเศรษฐกิจเกม" (admin/testing panel, local only).
 
+### Map layout overrides
+Positions placed in code can be moved without editing code: Map → "จัดวางแผนที่ (แอดมิน)" (or open `index.html?edit`).
+Drag objects, then download `layout.json` or publish it to GitHub (commits `game/layout.json` → Pages redeploys).
+Keys are each object's original `x,base,width`, so **moving an object in code orphans its layout entry** (the editor reports skipped entries).
+Hidden objects stay in `OBJ` (flag `o.hide`); never splice `OBJ` from the editor. `layout.json` is only fetched over http(s), not `file://`.
+
 ### Save data
 `snapshot()` / `restore(d)` (search `function snapshot`). **Any new field in `S` that must persist has to be added to both.**
 `restore` deep-clones its input first (cloud data can be frozen). Saves go to `localStorage` and the artifact DB.
@@ -80,6 +86,7 @@ Approximate section order (search for the `/* ---- name ---- */` comments):
 | Fast travel | `Midway Shuttle`, `STOPS` |
 | Audio | `sound + music`, `SFX`, `TRACKS` |
 | Admin/test panel | `economy settings (admin)`, `debugAction` |
+| Map layout editor (drag & drop, `layout.json`) | `map layout editor`, `LAY`, `layApply` |
 
 ## Runtime dependencies to replace when self-hosting
 The game was built as a claude.ai artifact. Online features call the artifact runtime (`window.claude.use('user'|'db'|'room')`)
