@@ -148,5 +148,11 @@
  "tree_golden": "02_nature/tree_golden.png",
  "tree_green": "02_nature/tree_green.png",
  "tree_pine": "02_nature/tree_pine.png",
- "tree_pink": "02_nature/tree_pink.png"
+ "tree_pink": "02_nature/tree_pink.png",
+ "data_center": "03_buildings_main/data_center.png",
+ "hall_of_fame": "03_buildings_main/hall_of_fame.png",
+ "hq": "03_buildings_main/hq.png",
+ "library": "03_buildings_main/library.png",
+ "museum": "03_buildings_main/museum.png",
+ "sala": "03_buildings_main/sala.png"
 }
