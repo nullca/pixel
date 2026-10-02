@@ -384,6 +384,9 @@ function trng(a,b,k){let s=(Math.imul(a,73856093)^Math.imul(b,19349663)^Math.imu
 // PNG art overrides: artReg(name, canvas) marks a code-drawn sprite as replaceable; game/assets/manifest.json maps
 // name -> PNG. When a PNG loads it is painted into every registered canvas (same size), so all users update in place.
 function artReg(n,c){const m=artReg.m||(artReg.m={});(m[n]||(m[n]=[])).push(c);return c}
+// animation frames: F = [[right frames...],[left frames...]] (frame 0 = idle, 1 = walk); PNG names "<n>@right_idle" etc.
+function artFr(n,F){const P=['idle','walk_1'];F[0].forEach((c,i)=>artReg(n+'@right_'+P[i],c));if(F[1]!==F[0])F[1].forEach((c,i)=>artReg(n+'@left_'+P[i],c));return F}
+function artRegFlip(n,c){c._artFlip=1;return artReg(n,c)}
 function artImg(n){return (artReg.img&&artReg.img[n])||null}
 // sprites replaced as a whole by PNG sets 05/06 (every call registers its canvas; colour variants share one PNG)
 function artWrap(f,n){return function(){return artReg(typeof n==='function'?n.apply(null,arguments):n,f.apply(null,arguments))}}
@@ -676,7 +679,7 @@ add({img:makeAC(),x:98*T-4,y:12*T-19,base:12*T});SOL[idx(98,11)]=1;OCC[idx(98,11
 const antObj=add({img:makeAntenna(),x:114*T-3,y:12*T-61,base:12*T});SOL[idx(114,11)]=1;mark(OCC,113,9,115,11);
 add({img:artReg('sala',makeSala()),x:8*T-1,y:90*T-58,base:90*T,mm:'#C0412E',tb:[8,87,11,89]});mark(SOL,8,88,11,89);mark(OCC,7,86,12,90);
 const sc=makeScarecrow();for(const [sx,sy] of [[10,75]])add({img:sc,x:sx*T+8-9,y:(sy+1)*T-29,base:(sy+1)*T-1});
-add({img:makeBuffalo(),x:16*T+8-16,y:90*T-21,base:90*T});SOL[idx(16,89)]=1;mark(OCC,15,88,17,89);
+add({img:artReg('buffalo@right_idle',makeBuffalo()),x:16*T+8-16,y:90*T-21,base:90*T});SOL[idx(16,89)]=1;mark(OCC,15,88,17,89);
 add({img:artReg('bodhi',makeBodhi()),x:102*T+8-40,y:56*T-85,base:56*T,mm:'#2A6E2E',tb:[100,51,104,55],ell:[42,30,7]});mark(SOL,101,54,103,55);mark(OCC,100,50,104,56);
 const wmObj=add({img:makeWindmill(),x:116*T+8-39,y:75*T-139,base:75*T,mm:'#F2ECE0',tb:[114,69,118,74],ell:[40,30,6]});mark(SOL,114,71,118,74);mark(OCC,111,63,121,76);
 add({img:makeStage(),x:AX-50,y:AY+14-56,base:AY+14,mm:'#9E2F22',tb:[60,77,66,80]});mark(SOL,60,78,66,80);
@@ -1003,6 +1006,7 @@ const PAL={krit:{skin:'#F2C9A0',skinD:'#DDAE86',hair:'#2A2230',hairD:'#1D1722',s
   nok:{skin:'#F6D5B5',skinD:'#E2BC98',hair:'#2A2230',hairD:'#1D1722',shirt:'#DC6F9A',shirtD:'#B14872',pants:'#F6EEDB',pantsD:'#D9CCB0',shoes:'#6B4A3A',long:true}};
 const FR={};for(const k in PAL)FR[k]=makeChar(PAL[k]);
 const PK=[0,1,2].map(makePaksa),PKf=PK.map(flipH),SL=[0,1].map(makeSlime);
+PK.forEach((c,i)=>{artRegFlip('paksa@'+(i+1),c);artReg('paksa@'+(i+1),PKf[i])});SL.forEach((c,i)=>artReg('slime@'+(i+1),c));/* code Paksa faces left, PNG faces right */
 const player={x:FX,y:57*T,dir:3,f:0,ft:0,fr:FR.krit};
 const npc=(o)=>Object.assign({dir:0,f:0,ft:0,wait:1+Math.random()*2,sp:18,li:0,tx:null,home:{x:o.x,y:o.y}},o);
 const npcs=[
@@ -1021,9 +1025,9 @@ function makeCat(col,fr){const [c,x]=cv(16,12);x.translate(1,1);
 function makeDuck(fr){const [c,x]=cv(16,12);x.translate(1,1);pell(x,7,7,6,3,'#F6F6F0');R(x,'#D9D9D0',3,8,8,1);pcirc(x,11,3,2,'#F6F6F0');R(x,'#EF9F27',13,3,2,1);R(x,'#1B1B26',11,2,1,1);R(x,'#E0E0D8',4,5+fr,4,1);return outline(c,'#2A2E33')}
 function makeChicken(fr){const [c,x]=cv(14,14);x.translate(1,1);pell(x,6,8,4,3,'#F6F6F0');R(x,'#E0E0D8',2,7,3,3);const hy=fr?5:2;pcirc(x,9,hy+1,2,'#F6F6F0');R(x,'#E2534A',9,hy-2,2,2);R(x,'#EF9F27',11,hy+1,2,1);R(x,'#1B1B26',10,hy,1,1);R(x,'#EF9F27',5,11,1,2);R(x,'#EF9F27',7,11,1,2);return outline(c,'#2A2E33')}
 function makeFeather(){const [c,x]=cv(12,17);x.translate(1,1);for(let i=0;i<11;i++){const cx=Math.round(6-i*.35),w=i<2?1:(i<8?2:1);R(x,'#F2C14E',cx-w,i,w*2+1,1);R(x,'#FFE69A',cx-w,i,1,1);R(x,'#C99A2E',cx,i,1,1)}R(x,'#B8892A',2,11,1,4);return outline(c,'#5E3E0A')}
-const catF=col=>{const r=[makeCat(col,0),makeCat(col,1)];return [r,r.map(flipH)]};
-const chickF=(()=>{const r=[makeChicken(0),makeChicken(1)];return [r,r.map(flipH)]})();
-const duckF=(()=>{const r=[makeDuck(0),makeDuck(1)];return [r,r.map(flipH)]})();
+const catF=col=>{const r=[makeCat(col,0),makeCat(col,1)],F=[r,r.map(flipH)];return col==='#F29B38'?artFr('cat',F):F};/* PNG cat is orange; grey/black cats keep code art */
+const chickF=artFr('chicken',(()=>{const r=[makeChicken(0),makeChicken(1)];return [r,r.map(flipH)]})());
+const duckF=artFr('duck',(()=>{const r=[makeDuck(0),makeDuck(1)];return [r,r.map(flipH)]})());
 const FEATHER=artReg('feather',makeFeather());
 const critters=[
   {kind:'cat',name:'แมวส้ม',fr:catF('#F29B38'),x:98*T,y:54*T,home:{x:98*T,y:54*T},sp:16,wait:1,face:0},
@@ -1731,7 +1735,7 @@ function makeBoss(fr){const [c,x]=cv(72,66);x.translate(3,3);
   R(x,'#FF5A4E',19,25,8,4);R(x,'#FF5A4E',39,25,8,4);R(x,'#FFE0DC',21,26,2,1);R(x,'#FFE0DC',41,26,2,1);
   for(let i=0;i<8;i++)R(x,'#FFFFFF',21+i*3,38+(i%2)*2,2,2);
   R(x,'#2A1A40',16,55,10,4);R(x,'#2A1A40',40,55,10,4);for(let i=0;i<6;i++)R(x,'#8FFFE8',12+i*8,46,2,1);return outline(c,'#120A1E')}
-const BOSSF=[makeBoss(0),makeBoss(1)];const BOSS_MAX=6000;let RAID={all:0,by:{}},bossShake=0;
+const BOSSF=[makeBoss(0),makeBoss(1)].map((c,i)=>artReg('boss@'+(i+1),c));const BOSS_MAX=6000;let RAID={all:0,by:{}},bossShake=0;
 function recomputeRaid(){const by={};let all=0;const m=monthKey();const addD=(d,v)=>{v=Math.max(0,Math.min(20000,+v||0));by[d]=(by[d]||0)+v;all+=v};
   for(const [id,p] of PLAYERS)if(id!==uid&&p.st&&p.st.m===m)addD(p.dept,p.st.dmg);addD(S.dept||'IT',S.stats.dmg);RAID={all,by}}
 const bossHP=()=>Math.max(0,BOSS_MAX-RAID.all);
@@ -1870,10 +1874,10 @@ function makeSlimeC(sq,col,colD,colL,sym){const [c,x]=cv(20,18);x.translate(1,1)
 const SPAMF=[0,1].map(sq=>makeSlimeC(sq,'#F07AB0','#C0457E','#FFD0E6',(x,cy)=>{R(x,'#FFFFFF',7,cy-4,5,4);R(x,'#C0457E',8,cy-3,3,2);R(x,'#FFFFFF',9,cy-3,1,1)}));
 function makeTrojan(fr){const [c,x]=cv(30,28);x.translate(1,1);R(x,'#8E5A33',4,8,18,10);R(x,'#A86D3F',4,8,18,2);R(x,'#6E4526',4,16,18,2);R(x,'#8E5A33',18,1,6,9);R(x,'#8E5A33',22,2,4,4);R(x,'#FF5A4E',22,3,2,2);R(x,'#6E4526',17,0,3,4);
   for(let i=0;i<4;i++)R(x,'#6E4526',6+i*4,18,2,3+(i%2===fr?1:0));R(x,'#26343D',2,21,24,2);pcirc(x,6,24,2,'#26343D');pcirc(x,20,24,2,'#26343D');R(x,'#3FE0C8',8,11,10,1);R(x,'#3FE0C8',8,13,6,1);return outline(c,'#1B1510')}
-const TROJF=[makeTrojan(0),makeTrojan(1)];
+const TROJF=[makeTrojan(0),makeTrojan(1)].map((c,i)=>artReg('trojan@'+(i+1),c));
 function makeWorm(fr){const [c,x]=cv(36,16);x.translate(1,1);for(let i=4;i>=0;i--){const yy=7+Math.round(Math.sin((i+fr*1.5)*1.3)*2);pcirc(x,6+i*6,yy,4,i%2?'#3F9A3E':'#5DBB4F');R(x,'#8BD26A',5+i*6,yy-3,2,1)}
   R(x,'#FFFFFF',3,5,2,2);R(x,'#1B1B26',3,6,1,1);R(x,'#1B1B26',4,1,1,3);R(x,'#1B1B26',7,1,1,3);R(x,'#FF5A4E',4,0,1,1);R(x,'#FF5A4E',7,0,1,1);return outline(c,'#13241A')}
-const WORMF=[makeWorm(0),makeWorm(1)];
+const WORMF=[makeWorm(0),makeWorm(1)].map((c,i)=>artReg('worm@'+(i+1),c));
 const MONQ={spam:[['อีเมลแจ้งว่าคุณชนะ iPhone ฟรี ให้กรอกที่อยู่และเลขบัตรประชาชนเพื่อรับของ',['กรอกให้ครบจะได้รีบรับของ','กดรายงานสแปมแล้วลบทิ้ง','ตอบกลับไปขอยกเลิกการรับข่าวสาร'],1,'ของฟรีที่ขอข้อมูลส่วนตัวคือสแปมหลอกลวง และการตอบกลับเท่ากับยืนยันว่าอีเมลนี้มีคนใช้'],
    ['มีคนส่งข้อความชวนลงทุนผลตอบแทน 30% ต่อเดือน',['ลองลงนิดหน่อยก่อน','บล็อกและรายงาน ไม่โอนเงิน','ส่งต่อให้เพื่อนร่วมทีมดู'],1,'ผลตอบแทนสูงผิดปกติคือสัญญาณของแชร์ลูกโซ่']],
   trojan:[['เว็บแจกโปรแกรมแต่งรูปเวอร์ชันเต็มฟรี ให้ดาวน์โหลดไฟล์ .exe',['โหลดเลยเพราะฟรี','ขอซอฟต์แวร์ผ่าน KDesk ให้ IT ติดตั้ง','ปิดแอนตี้ไวรัสก่อนแล้วค่อยติดตั้ง'],1,'โปรแกรมเถื่อนมักฝังโทรจันไว้ ขอผ่านช่องทางขององค์กรเสมอ'],
@@ -2243,7 +2247,7 @@ function makeCow(fr){const [c,x]=cv(32,24);x.translate(1,1);pell(x,15,10,11,6,'#
   for(let i=0;i<4;i++)R(x,'#E6E6DE',7+i*5,15,2,4+((i+fr)%2));R(x,'#F5A3C7',14,15,4,2);R(x,'#F6F6F0',0,4,8,8);R(x,'#26343D',1,4,3,3);R(x,'#F5A3C7',0,9,5,3);R(x,'#1B1B26',2,7,1,1);R(x,'#E8E0D0',1,2,2,2);R(x,'#E8E0D0',6,2,2,2);R(x,'#26343D',26,7,2,6);return outline(c,'#1A1D21')}
 function makeGoat(fr){const [c,x]=cv(22,20);x.translate(1,1);pell(x,10,9,7,4,'#E6E6DE');for(let i=0;i<4;i++)R(x,'#C9C9C0',5+i*3,12,1,4+((i+fr)%2));R(x,'#E6E6DE',0,3,6,6);R(x,'#8A8A80',1,1,1,3);R(x,'#8A8A80',4,1,1,3);R(x,'#1B1B26',2,5,1,1);R(x,'#C9C9C0',1,8,2,3);R(x,'#E6E6DE',16,6,2,2);return outline(c,'#2A2E33')}
 function makePig(fr){const [c,x]=cv(24,18);x.translate(1,1);pell(x,11,8,9,5,'#F5A3C7');pell(x,11,7,8,3,'#F8BCD6');for(let i=0;i<4;i++)R(x,'#DC6F9A',5+i*4,11,2,3+((i+fr)%2));R(x,'#F5A3C7',0,5,5,5);R(x,'#DC6F9A',0,7,3,2);R(x,'#1B1B26',3,5,1,1);R(x,'#DC6F9A',3,3,2,2);R(x,'#DC6F9A',20,5,2,1);R(x,'#DC6F9A',21,4,1,1);return outline(c,'#5E2F40')}
-const two=f=>{const r=[f(0),f(1)];return [r,r.map(flipH)]};const COWF=two(makeCow),GOATF=two(makeGoat),PIGF=two(makePig);
+const two=f=>{const r=[f(0),f(1)];return [r,r.map(flipH)]};const COWF=artFr('cow',two(makeCow)),GOATF=artFr('goat',two(makeGoat)),PIGF=artFr('pig',two(makePig));
 const RANCH={x:32*T,y:80*T};const RNAMES={cow:'วัวนม',goat:'แพะ',pig:'หมู'};
 const newAnimals=[['cow',28,77],['cow',35,82],['cow',30,84],['goat',37,76],['goat',26,80],['pig',33,74],['pig',29,79]].map(([k,x,y],i)=>({kind:k,name:RNAMES[k],fr:{cow:COWF,goat:GOATF,pig:PIGF}[k],x:x*T+8,y:y*T+8,home:{x:x*T+8,y:y*T+8},sp:k==='cow'?7:10,wait:Math.random()*3,face:i%2,ci:i}));
 for(const c of critters)if(c.kind==='chick'){c.home={x:36*T,y:80*T};c.x=36*T+(Math.random()-.5)*30;c.y=80*T+(Math.random()-.5)*20}
@@ -2416,7 +2420,7 @@ HOOKS.update.push(()=>{if(scene!=='town'||player.y<96*T)return;const sd=shellDay
   if(s.k==='msgbottle'){S.coins+=15;renderStats();say([{name:'ขวดจดหมาย',t:'เปิดจุกขวดออกมา... '+BOTTLE_MSG[Math.random()*BOTTLE_MSG.length|0]}])}else addItem(s.k,1);saveSoon()}}});
 HOOKS.town.push((L,vis)=>{if(cam.y+ch<96*T)return;const sd=shellDay();for(const s of sd.list){if(s.got||!vis(s.x,s.y,10))continue;L.push({base:s.y,fn:()=>{const img=s.k==='msgbottle'?ICON.msgbottle:ICON[s.k];const sx=SNP(s.x-cam.x),sy=SNP(s.y-cam.y);ctx.drawImage(img,sx-7,sy-12);if(Math.sin(t*4+s.x)>.8)R(ctx,'#FFFFFF',sx+4,sy-12,1,1)}})}});
 function makeCrab(fr){const [c,x]=cv(18,12);x.translate(1,1);pell(x,8,6,5,3,'#E2534A');R(x,'#F07A6A',5,4,6,1);R(x,'#1B1B26',6,2,1,2);R(x,'#1B1B26',10,2,1,2);R(x,'#E2534A',0,3+fr,3,2);R(x,'#E2534A',13,3-fr+1,3,2);for(let i=0;i<3;i++){R(x,'#C0412E',3+i*2,8+(i+fr)%2,1,2);R(x,'#C0412E',10+i*2,8+(i+fr+1)%2,1,2)}return outline(c,'#5E1E1E')}
-const CRABF=(()=>{const r=[makeCrab(0),makeCrab(1)];return [r,r]})();
+const CRABF=artFr('crab',(()=>{const r=[makeCrab(0),makeCrab(1)];return [r,r]})());
 for(const [cx,cy] of [[12,102],[33,101],[66,102],[99,101],[117,102]]){const a={kind:'crab',name:'ปูลม',fr:CRABF,x:cx*T,y:cy*T,home:{x:cx*T,y:cy*T},sp:22,wait:Math.random()*2,face:0};critters.push(a);
   INT.push({get x(){return a.x},get y(){return a.y},r:16,my:-18,label:'ปู',act:()=>{a.tx=a.x+(Math.random()<.5?-60:60);a.ty=a.y;a.wait=0;a.sp=60;setTimeout(()=>{a.sp=22},1500);pop('ปูวิ่งหนีข้างๆ!','#F07A6A');const d=dayKey(new Date());if(S.crabDay!==d){S.crabDay=d;gain(8,0)}}})}
 /* ---- beach activities ---- */
@@ -2943,7 +2947,7 @@ if(typeof location!=='undefined'&&/[?&]edit\b/.test(location.search||''))setTime
 if(typeof fetch==='function'&&typeof Image!=='undefined'&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&!/[?&]art=0\b/.test(location.search||''))
   fetch('assets/manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(man=>{if(!man||typeof man!=='object')return;
     for(const n in man){const img=new Image();img.onload=()=>{(artReg.img||(artReg.img={}))[n]=img;
-      for(const c of (artReg.m||{})[n]||[]){const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.imageSmoothingEnabled=false;g.drawImage(img,0,0,c.width,c.height)}chunkCache.clear()};img.src='assets/'+man[n]}}).catch(()=>{});
+      for(const c of (artReg.m||{})[n]||[]){const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.imageSmoothingEnabled=false;g.save();if(c._artFlip){g.translate(c.width,0);g.scale(-1,1)}g.drawImage(img,0,0,c.width,c.height);g.restore()}chunkCache.clear()};img.src='assets/'+man[n]}}).catch(()=>{});
 
 /* ================= retention: mailbox, login calendar, season pass, level rewards, story ================= */
 S.mail=Array.isArray(S.mail)?JSON.parse(JSON.stringify(S.mail)):[];S.login=S.login||{last:null,streak:0};S.story=S.story||{ch:0,step:0,done:[]};if(S.lvRewarded==null)S.lvRewarded=S.lv;
