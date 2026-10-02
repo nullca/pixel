@@ -922,8 +922,10 @@ const DEC=[];
   const [mc,m]=cv(S,S);pcirc(m,h,h,180,'#000');m.globalCompositeOperation='source-in';m.drawImage(pc,0,0);
   const [dc,d]=cv(S,S);pcirc(d,h,h,184,'#9C8D70');pcirc(d,h,h,182,'#B9AB8E');d.drawImage(mc,0,0);for(let a=0;a<360;a+=1.5){const r=a*Math.PI/180;R(d,'#A89A7E',Math.round(h+Math.cos(r)*150),Math.round(h+Math.sin(r)*150),2,2)}for(let a=15;a<360;a+=30){const r=a*Math.PI/180;const ex=Math.round(h+Math.cos(r)*150),ey=Math.round(h+Math.sin(r)*150);R(d,'#B14872',ex-2,ey-2,5,5);R(d,'#F5A3C7',ex-1,ey-1,3,3)}for(let a=0;a<360;a+=2){const r=a*Math.PI/180;R(d,'#A89A7E',Math.round(h+Math.cos(r)*104),Math.round(h+Math.sin(r)*104),2,2)}for(let a=0;a<360;a+=30){const r=a*Math.PI/180;const ex=Math.round(h+Math.cos(r)*104),ey=Math.round(h+Math.sin(r)*104);R(d,'#5FA89B',ex-2,ey-2,5,5);R(d,'#F2C14E',ex-1,ey-1,3,3)}for(let k2=0;k2<8;k2++){const r=k2*Math.PI/4;for(let q=52;q<148;q+=3)R(d,'#C2B69B',Math.round(h+Math.cos(r)*q),Math.round(h+Math.sin(r)*q),2,2)}
   for(let a=0;a<360;a+=3){const r=a*Math.PI/180;R(d,'#5FA89B',Math.round(h+Math.cos(r)*48),Math.round(h+Math.sin(r)*48),2,2)}
-  pcirc(d,h,h+3,24,'rgba(40,40,30,.2)');pcirc(d,h,h,23,'#8A7E66');pcirc(d,h,h,21,'#C2B79F');pcirc(d,h,h,17,'#3A93CB');pcirc(d,h,h,14,'#4AA7DD');pcirc(d,h,h,5,'#8A7E66');pcirc(d,h,h,4,'#D1C7AF');R(d,'#EDE6D6',h-2,h-3,2,2);
-  DEC.push({img:dc,x:FX-h,y:FY-h})}
+  DEC.push({img:artReg('plaza_round',dc),x:FX-h,y:FY-h});
+  const [fc,f]=cv(52,54),q=26;/* fountain bowl: separate decal so it stays on top of the PNG plaza */
+  pcirc(f,q,q+3,24,'rgba(40,40,30,.2)');pcirc(f,q,q,23,'#8A7E66');pcirc(f,q,q,21,'#C2B79F');pcirc(f,q,q,17,'#3A93CB');pcirc(f,q,q,14,'#4AA7DD');pcirc(f,q,q,5,'#8A7E66');pcirc(f,q,q,4,'#D1C7AF');R(f,'#EDE6D6',q-2,q-3,2,2);
+  DEC.push({img:fc,x:FX-q,y:FY-q})}
 function makeWater(rx,ry,deep,lotus,reeds){const W=rx*2+12,H=ry*2+12,cx=W>>1,cy=H>>1;const [c,x]=cv(W,H);
   pell(x,cx,cy,rx+2,ry+2,'#CDB783');pell(x,cx,cy,rx,ry,'#DCC896');pell(x,cx,cy,rx-4,ry-4,'#3A93CB');pell(x,cx,cy+4,Math.round(rx*.8),Math.round(ry*.7),'#2F80B6');
   if(deep)pell(x,cx,cy+8,Math.round(rx*.5),Math.round(ry*.4),'#2A73A6');
@@ -932,7 +934,7 @@ function makeWater(rx,ry,deep,lotus,reeds){const W=rx*2+12,H=ry*2+12,cx=W>>1,cy=
   return {c,cx,cy,x}}
 {const w=makeWater(62,37,false,9,34);DEC.push({img:w.c,x:PX-w.cx,y:PY-w.cy})}
 {const w=makeWater(116,72,true,10,56);DEC.push({img:w.c,x:LX-w.cx,y:LY-w.cy})}
-{const a=makeArena();DEC.push({img:a,x:AX-168,y:AY-168})}
+{const a=artReg('arena_round',makeArena());DEC.push({img:a,x:AX-168,y:AY-168})}
 {const [c,x]=cv(34,14);pell(x,17,8,15,5,'#6E4526');pell(x,17,7,13,4,'#A86D3F');pell(x,17,7,10,2,'#5E3E22');R(x,'#8E5A33',6,4,1,7);R(x,'#8E5A33',27,4,1,7);R(x,'#D9CCB0',2,6,8,1);DEC.push({img:c,x:LX+10,y:LY+22})}
 {const [c,x]=cv(66,32);for(let xx=0;xx<64;xx+=4){R(x,xx%8?'#A0703E':'#96683A',xx,2,3,28);R(x,'#5E3E22',xx+3,2,1,28);R(x,'#B98452',xx,2,1,28)}
   for(let xx=6;xx<64;xx+=20){R(x,'#4E2F18',xx,0,6,3);R(x,'#4E2F18',xx,29,6,3)}R(x,'#3A2618',63,2,3,28);DEC.push({img:c,x:110*T,y:21*T})}
@@ -945,19 +947,30 @@ const chunkCache=new Map();let frameNo=0,builtThis=0;const stats={built:0,drawn:
 const noise=(x,y)=>Math.sin(x*.33+Math.cos(y*.21)*2.1)+Math.cos(y*.29-x*.13)*.9;
 // PNG ground tiles (assets/01_ground_tiles): center tile per ground type, plus an edge/corner tile where it meets grass
 const TILE_ART={0:'tile_grass',1:'tile_path',2:'tile_plaza',3:'tile_water',4:'tile_forest',5:'tile_paddy',6:'tile_bridge',7:'tile_dike',8:'tile_neon',9:'tile_sea',10:'tile_sand'};
-// corner ("dual grid") autotile sets: drawn on vertices, half a tile offset; corner bits NW=1 NE=2 SW=4 SE=8 = neighbouring tile is this ground type
-const CORNER_SETS=[{v:1,n:'path'}];
-function cornerSet(v){for(const c of CORNER_SETS)if(c.v===v&&artImg(c.n+'_15'))return c;return null}
-function paintCorners(g,cx,cy,x0,y0){for(const cs of CORNER_SETS){if(!artImg(cs.n+'_15'))continue;const is=(x,y)=>inB(x,y)&&G[idx(x,y)]===cs.v;
-  for(let ty=cy*CH;ty<=Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<=Math.min(MW,(cx+1)*CH);tx++){
-    const m=(is(tx-1,ty-1)?1:0)|(is(tx,ty-1)?2:0)|(is(tx-1,ty)?4:0)|(is(tx,ty)?8:0);if(!m)continue;
-    let im=artImg(cs.n+'_'+m);if(m===15){const hu=(Math.imul(tx,2654435761)^Math.imul(ty,40503))>>>0,vr=['','','b','c','d'][hu%5];im=(vr&&artImg(cs.n+'_15'+vr))||im}
-    if(im)g.drawImage(im,tx*T-T/2-x0,ty*T-T/2-y0,T,T)}}}
-function tileArt(g,tx,ty,px,py,i,v){if(cornerSet(v))v=0;const nm=TILE_ART[v];if(!nm||(v===6&&!BRG[i]))return false;
+// corner ("dual grid") autotile sets (assets/G02..G13): drawn on vertices, half a tile offset; corner bits NW=1 NE=2 SW=4 SE=8 =
+// neighbouring tile belongs to this set. Each set has 16 masks + 15b/c/d fill variants; complementary masks of two sets tile without gaps.
+// Order = the art pack's layer order (lower first). Tiles claimed by a loaded set get a grass base from paintTile.
+const CORNER_SETS=['forest','soil','paddy','neon','sand','sea','water','path','market','plaza'];
+const GSET={1:'path',2:'plaza',4:'forest',5:'paddy',7:'soil',8:'neon',9:'sea',10:'sand'};let MKT_BOX=null;
+function gcls(x,y){x=x<0?0:x>=MW?MW-1:x;y=y<0?0:y>=MH?MH-1:y;const i=idx(x,y),v=G[i];
+  if(v===3)return RIV[i]?'water':null;
+  if(v===6)return BRG[i]?'water':y>=100?(y>=SEA0(x)?'sea':'sand'):null;/* bridge decks sit on river; beach pier on sea/sand */
+  if(v===2){const b=MKT_BOX||(MKT_BOX=DBOX('market'));if(x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3])return 'market'}/* market square: cobbles */
+  return GSET[v]||null}
+function gclaim(tx,ty){const c=gcls(tx,ty);return !!(c&&artImg(c+'_15'))}
+function paintCorners(g,cx,cy,x0,y0){const tx0=cx*CH-1,ty0=cy*CH-1,tx1=Math.min(MW,(cx+1)*CH),ty1=Math.min(MH,(cy+1)*CH),CW=tx1-tx0+1,K=new Array(CW*(ty1-ty0+1));
+  for(let y=ty0;y<=ty1;y++)for(let x=tx0;x<=tx1;x++)K[(y-ty0)*CW+x-tx0]=gcls(x,y);
+  for(const n of CORNER_SETS){if(!artImg(n+'_15'))continue;const is=(x,y)=>K[(y-ty0)*CW+x-tx0]===n;
+    for(let ty=ty0+1;ty<=ty1;ty++)for(let tx=tx0+1;tx<=tx1;tx++){
+      const m=(is(tx-1,ty-1)?1:0)|(is(tx,ty-1)?2:0)|(is(tx-1,ty)?4:0)|(is(tx,ty)?8:0);if(!m)continue;
+      let im=artImg(n+'_'+m);if(m===15){const hu=(Math.imul(tx,2654435761)^Math.imul(ty,40503))>>>0;
+        if(n==='sea'&&ty-SEA0(tx)>=3)im=artImg('sea_deep_'+(1+hu%4))||im;else{const vr=['','','b','c','d'][hu%5];im=(vr&&artImg(n+'_15'+vr))||im}}
+      if(im)g.drawImage(im,tx*T-T/2-x0,ty*T-T/2-y0,T,T)}}}
+function tileArt(g,tx,ty,px,py,i,v){if(gclaim(tx,ty))v=0;const nm=TILE_ART[v];if(!nm||(v===6&&!BRG[i]))return false;
   if(v===0){const h=Math.imul(tx,73856093)^Math.imul(ty,19349663),hu=h>>>0;
     if(artImg('grass_1')){/* HD grass set T01: 32px variants (6/7 have flowers), darker near forest, sparse overlays */
       const nearF=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>inB(tx+dx,ty+dy)&&G[idx(tx+dx,ty+dy)]===4);
-      const im=nearF?artImg('grass_dark_'+(1+hu%4)):artImg('grass_'+[1,2,3,4,5,8,1,2,3,4,5,8,6,7][hu%14]);if(!im)return false;g.drawImage(im,px,py,T,T);
+      const im=nearF?artImg('grass_dark_'+(1+hu%4)):HGT[i]&&artImg('grass_high_1')?artImg('grass_high_'+(1+hu%4)):artImg('grass_'+[1,2,3,4,5,8,1,2,3,4,5,8,6,7][hu%14]);if(!im)return false;g.drawImage(im,px,py,T,T);
       const o=(hu>>>9)%100,ov=o<7?'tuft_'+(1+o%4):o<10?'flowers_'+(1+o%4):o<12?'pebbles_'+(1+o%2):o<13?'leaves_'+(1+o%2):null,oi=ov&&artImg(ov);if(oi)g.drawImage(oi,px,py,T,T);return true}
     const im=artImg('tile_grass_'+(1+(((tx*7)^(ty*13)^(tx*ty))&3)))||artImg('tile_grass');if(!im)return false;g.drawImage(im,px,py);return true}
   const im=artImg(nm);if(!im)return false;g.drawImage(im,px,py);
@@ -1016,6 +1029,7 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
     WF[y*FW+x]=v;if(v)anyW=1;const cX=Math.max(0,Math.min(MW-1,X)),cY=Math.max(0,Math.min(MH-1,Y)),h=HGT[idx(cX,cY)],gS=G[idx(cX,cY)];SF[y*FW+x]=gS===10||gS===9||gS===3?1:0;PF[y*FW+x]=gS===1?1:0;if(gS===10||gS===1)anyS=1;HF[y*FW+x]=h;if(h)anyH=1;
     const hb=h*.5+(hAt(X-1,Y)+hAt(X+1,Y)+hAt(X,Y-1)+hAt(X,Y+1))*.1+(hAt(X-1,Y-1)+hAt(X+1,Y-1)+hAt(X-1,Y+1)+hAt(X+1,Y+1))*.025;HB[y*FW+x]=hb;if(hb!==h)anyStep=1}
   if(!anyW&&!anyH&&!anyS&&!anyStep)return;
+  const wSet=!!artImg('water_15'),bSet=!!(artImg('sand_15')&&artImg('path_15'));/* PNG corner sets already draw river banks and sand/path edges */
   const bil=(F,u,v)=>{u-=tx0-M+.5;v-=ty0-M+.5;const xi=Math.max(0,Math.min(FW-2,Math.floor(u))),yi=Math.max(0,Math.min(FH-2,Math.floor(v))),fx=Math.max(0,Math.min(1,u-xi)),fy=Math.max(0,Math.min(1,v-yi)),o=yi*FW+xi;
     return F[o]*(1-fx)*(1-fy)+F[o+1]*fx*(1-fy)+F[o+FW]*(1-fx)*fy+F[o+FW+1]*fx*fy};
   const cl=(x,y)=>inB(x,y)?CLIFF[idx(x,y)]:0;
@@ -1038,9 +1052,9 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
   /* pass 1: which tiles need work */
   const jobs=[],flatT=[];let bx0=1e9,by0=1e9,bx1=-1,by1=-1;
   for(let ty=ty0;ty<ty1;ty++)for(let tx=tx0;tx<tx1;tx++){const i=idx(tx,ty),cf=CLIFF[i],h=HGT[i];
-    const nearW=anyW&&(isW(tx,ty)||isW(tx-1,ty)||isW(tx+1,ty)||isW(tx,ty-1)||isW(tx,ty+1)||isW(tx-1,ty-1)||isW(tx+1,ty-1)||isW(tx-1,ty+1)||isW(tx+1,ty+1));
+    const nearW=!wSet&&anyW&&(isW(tx,ty)||isW(tx-1,ty)||isW(tx+1,ty)||isW(tx,ty-1)||isW(tx,ty+1)||isW(tx-1,ty-1)||isW(tx+1,ty-1)||isW(tx-1,ty+1)||isW(tx+1,ty+1));
     const gT=G[i],nb8=v=>[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]].some(([dx,dy])=>inB(tx+dx,ty+dy)&&G[idx(tx+dx,ty+dy)]===v);
-    const bT=!anyS?0:gT===0?(nb8(10)?10:nb8(1)?1:0):(gT===10||gT===1)&&!BRG[i]&&!cf&&nb8(0)?gT:0;
+    const bT=!anyS||bSet?0:gT===0?(nb8(10)?10:nb8(1)?1:0):(gT===10||gT===1)&&!BRG[i]&&!cf&&nb8(0)?gT:0;
     let step=0;if(anyStep)for(let dy=-3;dy<=1&&!step;dy++)for(let dx=-1;dx<=1;dx++)if(hAt(tx+dx,ty+dy)!==h){step=1;break}
     const tint=anyH&&(h||step);
     if(tint&&h&&!step&&!nearW&&!bT){flatT.push(tx,ty,h);continue}/* uniform terrace interior: one fillRect later instead of per pixel */
@@ -1104,7 +1118,7 @@ function paintChunk(cx,cy){const HK=artImg('grass_1')?2:1;const [c,g]=cv(CPX*HK,
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++)paintTile(g,tx,ty,tx*T-x0,ty*T-y0);
   if(artReg.img)paintCorners(g,cx,cy,x0,y0);
   try{hdTerrain(c,g,cx,cy,x0,y0,HK)}catch(e){hookErr&&hookErr(e)}
-  for(const d of DEC)if(!d.hide&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img,d.x-x0,d.y-y0);
+  for(const d of DEC)if(!d.hide&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img._hd||d.img,d.x-x0,d.y-y0,d.img.width,d.img.height);
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty),px=tx*T-x0,py=ty*T-y0;
     if(CLIFF[i]===2||CLIFF[i]===4){/* stone stairs cut into the cliff: treads lit from above, dark risers, rock cheeks where the flight ends */
       const st=(x,y)=>inB(x,y)&&(CLIFF[idx(x,y)]===2||CLIFF[idx(x,y)]===4),up=CLIFF[i]===2,lE=!st(tx-1,ty),rE=!st(tx+1,ty),yEnd=up?16:12,r=trng(tx,ty,41);
@@ -3469,7 +3483,18 @@ function TP(x,y){const o=TOFF(x,y);return [x+o[0],y+o[1]]}
 function TPT(tx,ty){const d=distAt(tx,ty);return [tx+d[5],ty+d[6]]}
 function DBOX(name){const d=DIST.find(q=>q[0]===name);return [d[1]+d[5],d[2]+d[6],d[3]+d[5],d[4]+d[6]]}
 const WATERFALLS=[],CRYS_DECOR=[];
-HOOKS.town.push((L,vis)=>{for(const [x,y] of WATERFALLS){const px=x*T,py=y*T;if(!vis(px+8,py+8,24))continue;L.push({base:py+T+1,fn:()=>{const sx=SNP(px-cam.x),sy=SNP(py-cam.y);
+/* PNG waterfalls (assets/G07_waterfall, 3 frames): each run of drop tiles is widened to the river's full width and drawn as
+   lip / fall / fall / splash rows (left, mid, right modules); a run below the dam wall gets the dam spillway sprite */
+let WF_RUNS=null;
+function wfRuns(){const out=[],key=new Set(WATERFALLS.map(([x,y])=>x+','+y)),done=new Set(),wet=(x,y)=>inB(x,y)&&G[idx(x,y)]===3;
+  for(const [x,y] of WATERFALLS){if(done.has(x+','+y))continue;let a=x,b=x;while(key.has((a-1)+','+y))a--;while(key.has((b+1)+','+y))b++;for(let k=a;k<=b;k++)done.add(k+','+y);
+    const dam=!wet(x,y-1);if(!dam){while(wet(a-1,y)&&wet(a-1,y-1))a--;while(wet(b+1,y)&&wet(b+1,y-1))b++}out.push({a,b,y,dam})}return out}
+function wfArt(L,vis){const runs=WF_RUNS||(WF_RUNS=wfRuns()),f='_f'+(1+((t*8)|0)%3);
+  for(const r of runs){const px=r.a*T,w=(r.b-r.a+1)*T,py=r.y*T;if(!vis(px+w/2,py+T,w/2+48))continue;
+    if(r.dam){const im=artImg('dam_spill'+f);if(!im)continue;const h=Math.round(w*im.height/im.width);L.push({base:py+h,fn:()=>ctx.drawImage(im,SNP(px-cam.x),SNP(py-2-cam.y),w,h)});continue}
+    L.push({base:py+2*T+8,fn:()=>{for(let x=r.a;x<=r.b;x++){const col=r.a===r.b?'mid':x===r.a?'left':x===r.b?'right':'mid',sx=SNP(x*T-cam.x);
+      ['top','fall','fall','bottom'].forEach((row,k)=>{const im=artImg('wf_'+row+'_'+col+f);if(im)ctx.drawImage(im,sx,SNP(py+(k-1)*T-cam.y),T,T)})}}})}}
+HOOKS.town.push((L,vis)=>{if(artImg('wf_fall_mid_f1')){wfArt(L,vis);return}for(const [x,y] of WATERFALLS){const px=x*T,py=y*T;if(!vis(px+8,py+8,24))continue;L.push({base:py+T+1,fn:()=>{const sx=SNP(px-cam.x),sy=SNP(py-cam.y);
   R(ctx,'rgba(230,247,255,.85)',sx,sy-6,T,T+6);for(let k=0;k<5;k++){const ox=(k*3+((t*40+k*7)|0))%T,len=4+(k*5)%7,oy=((t*60+k*9)%(T+6))-6;R(ctx,'#BFE6FA',sx+ox,sy+oy,1,len)}
   for(let k=0;k<4;k++){const a=(t*2+k*1.7)%1;R(ctx,'rgba(255,255,255,'+(1-a).toFixed(2)+')',sx+2+k*3,sy+T-2-a*4,2,2)}}})}
   for(const c of CRYS_DECOR){if(!vis(c.x,c.y,20))continue;L.push({base:c.y,fn:()=>{const sx=SNP(c.x-cam.x),sy=SNP(c.y-cam.y),a=(Math.sin(t*2+c.x)+1)/2;ctx.fillStyle='rgba(184,166,255,'+(.12+a*.18).toFixed(2)+')';ctx.fillRect(sx-8,sy-18,16,18);
