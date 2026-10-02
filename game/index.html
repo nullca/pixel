@@ -887,7 +887,7 @@ const TREES_EXTRA={p:artReg('tree_pine',makePine()),g:artReg('tree_golden',makeG
 function makeHedge(fl){const [c,x]=cv(18,18);x.translate(1,1);R(x,'#2B6230',0,6,16,10);pcirc(x,3,7,4,'#356F36');pcirc(x,9,6,5,'#3F8A3A');pcirc(x,14,7,4,'#356F36');
   R(x,'#5DAE4A',5,3,4,1);R(x,'#5DAE4A',1,5,2,1);R(x,'#5DAE4A',12,4,3,1);for(let i=0;i<6;i++)R(x,'#4C9A3E',1+i*2.5|0,9+(i%3),1,1);R(x,'#1F4A24',0,14,16,2);
   if(fl)for(let i=0;i<4;i++)R(x,['#F26B6B','#FFFFFF','#F5A3C7','#FFE08A'][i],2+i*4,5+(i%2)*3,2,1);return outline(c,'#13241A')}
-{const H0=artReg('hedge',makeHedge(false)),H1=artReg('hedge',makeHedge(true));let hn=0;const hedge=(tx,ty)=>{const i=idx(tx,ty);if(!inB(tx,ty)||G[i]!==0||SOL[i]||OCC[i])return;add({img:(hn++%5===2)?H1:H0,x:tx*T-1,y:(ty+1)*T-17,base:(ty+1)*T-2});SOL[i]=1;OCC[i]=1};
+{const H0=artReg('hedge',makeHedge(false)),H1=artReg('hedge',makeHedge(true));let hn=0;const hedge=(tx,ty)=>{const i=idx(tx,ty);if(!inB(tx,ty)||G[i]!==0||SOL[i]||OCC[i])return;add({img:(hn++%5===2)?H1:H0,x:tx*T-1,y:(ty+1)*T-17,base:(ty+1)*T-2,hedge:1});SOL[i]=1;OCC[i]=1};
   const hline=(x0,y0,x1,y1)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)hedge(x,y)};
   window.__hedge=(x,y)=>{add({img:(hn++%5===2)?H1:H0,x:x*T-1,y:(y+1)*T-17,base:(y+1)*T-2,gen:1});SOL[idx(x,y)]=1;OCC[idx(x,y)]=1}}
 const TREES={n:artReg('tree_green',makeTree(['#2E7D32','#3F9A3E','#5DBB4F','#A5E08A'])),n2:artReg('tree_green',makeTree(['#2F7A3A','#46A046','#6CC35A','#B5E89A'])),
@@ -1014,7 +1014,7 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
   const cl=(x,y)=>inB(x,y)?CLIFF[idx(x,y)]:0;
   /* cliffs from a smoothed height contour: the level map is the blurred height with wobbly sampling, so terrace edges curve and corners round off.
      A south-facing drop gets a rock face hanging below the contour (CD = depth below the lip), east/west drops get a grassy slope band (SD). */
-  const UP=44,SM=6,LW=PW+2*SM,LH=PH+UP;let LV=null,CD=null,SD=null;
+  const UP=44,SM=15,LW=PW+2*SM,LH=PH+UP;let LV=null,CD=null,SD=null;
   if(anyStep){LV=new Int8Array(LW*LH);const nX=new Float32Array(LH),nY=new Float32Array(LW);
     for(let r=0;r<LH;r++){const wy=y0-UP+r+.5;nX[r]=(thV(wy*.08,7.3)-.5)*10+(thV(wy*.29,2.1)-.5)*3}
     for(let k=0;k<LW;k++){const wx=x0-SM+k+.5;nY[k]=(thV(wx*.08,3.7)-.5)*10+(thV(wx*.29,5.9)-.5)*3}
@@ -1027,7 +1027,7 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
     for(let r=UP;r<LH;r++)for(let k=SM;k<SM+PW;k++){const lv=LV[r*LW+k];let e=0,w=0;
       for(let j=1;j<=SM;j++){if(!e&&LV[r*LW+k+j]<lv)e=j;if(!w&&LV[r*LW+k-j]<lv)w=j}
       if(e&&(!w||e<=w))SD[(r-UP)*PW+k-SM]=e;else if(w)SD[(r-UP)*PW+k-SM]=-w;
-      else{for(let j=1;j<=3;j++)if(LV[r*LW+k-j]>lv){SD[(r-UP)*PW+k-SM]=-10-j;break}}}}
+      else{for(let j=1;j<=8;j++)if(LV[r*LW+k-j]>lv||LV[r*LW+k+j]>lv){SD[(r-UP)*PW+k-SM]=-10-j;break}}}}
   /* pass 1: which tiles need work */
   const jobs=[],flatT=[];let bx0=1e9,by0=1e9,bx1=-1,by1=-1;
   for(let ty=ty0;ty<ty1;ty++)for(let tx=tx0;tx<tx1;tx++){const i=idx(tx,ty),cf=CLIFF[i],h=HGT[i];
@@ -1069,11 +1069,14 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
             const sd=SD[pi];if(sd&&sd>-10&&Math.abs(sd)<4)mul(o,.78+.06*Math.abs(sd));
             if(d>hf-1)set(o,...C.out);done=1}
           else if(d<hf+6){mul(o,.62+.38*(d-hf)/6);done=1}}
-        /* east/west drops: grassy slope with a dark rim; shadow on the low side of a west-facing drop */
+        /* east/west drops: a narrow rock side face with a grass lip; where a road crosses it the face is cut and the road shades as a slope */
         if(!done){const sd=SD[pi];
-          if(sd>0||(sd<0&&sd>-10)){const dist=Math.abs(sd)-.5,east=sd>0,w=4.2+(thV(wy*.16,tx*2.1+(east?0:9))-.5)*3;
-            if(dist<w){if(dist>w-1.1)set(o,...C.grassD);else{mul(o,east?.7+.2*dist/w:.86+.08*dist/w);const sc=thH(Math.floor(wy/4)+tx*97,east?1:2);if(sc>.8&&dist<w-1.8&&Math.abs(wy%4-2)<1.3){const b=TH_STONE[(sc*50|0)%5];set(o,b[0],b[1],b[2])}}done=1}}
-          else if(sd<=-11)mul(o,.84)}}
+          if(sd>0||(sd<0&&sd>-10)){const dist=Math.abs(sd)-.5,east=sd>0,w=12+(thV(wy*.16,tx*2.1+(east?0:9))-.5)*3.5;
+            if(dist<w){if(gT===1||RAMP[J.i]){mul(o,east?.8+.2*dist/w:.9+.1*dist/w)}
+              else if(dist>w-1.3){set(o,...C.grassD);if(dist>w-.6)mix(o,C.grass,.5)}
+              else{const [sh,pk]=thRock(wx+(east?40:0),wy);if(sh<0)set(o,...C.crack);else{const b=TH_STONE[pk],k=sh*(east?.72:.9)*(.8+.2*dist/w);set(o,b[0]*k,b[1]*k,b[2]*k)}if(dist<1.4)set(o,...C.out)}
+              done=1}}
+          else if(sd<=-11&&gT!==1)mul(o,.6+.4*(-sd-11)/8)}}
       /* curved sand/path vs grass border: copy texture from the neighbouring tile */
       if(!done&&bT){const v=bil(BF,wx/T,wy/T)+(thV(wx*.09,wy*.09)-.5)*.34+(thV(wx*.31,wy*.31)-.5)*.1;
         if(gT===0&&v>=.5){if(offS!=null)copy(o,offS);else set(o,...bCol);if(v<.54)mul(o,.92)}
@@ -1096,7 +1099,14 @@ function paintChunk(cx,cy){const HK=artImg('grass_1')?2:1;const [c,g]=cv(CPX*HK,
   try{hdTerrain(c,g,cx,cy,x0,y0,HK)}catch(e){hookErr&&hookErr(e)}
   for(const d of DEC)if(!d.hide&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img,d.x-x0,d.y-y0);
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty),px=tx*T-x0,py=ty*T-y0;
-    if(CLIFF[i]===2||CLIFF[i]===4){const n=CLIFF[i]===2?5:3;for(let k=0;k<n;k++){R(g,'#BDB298',px+1,py+k*3+1,14,3);R(g,'#D9CFBC',px+1,py+k*3+1,14,1);R(g,'#8E8272',px+1,py+k*3+3,14,1)}R(g,'#8E8272',px,py,1,n*3+1);R(g,'#8E8272',px+15,py,1,n*3+1)}}
+    if(CLIFF[i]===2||CLIFF[i]===4){/* stone stairs cut into the cliff: treads lit from above, dark risers, rock cheeks where the flight ends */
+      const st=(x,y)=>inB(x,y)&&(CLIFF[idx(x,y)]===2||CLIFF[idx(x,y)]===4),up=CLIFF[i]===2,lE=!st(tx-1,ty),rE=!st(tx+1,ty),yEnd=up?16:12,r=trng(tx,ty,41);
+      for(let yy=0;yy<yEnd;yy+=4){const gy=(up?0:16)+yy,k=gy/28,tr=k<.3?'#DCD2BC':k<.6?'#CFC4AC':'#C0B49A',hl=k<.3?'#F0E8D6':k<.6?'#E3D9C4':'#D6CBB4';
+        R(g,tr,px,py+yy,T,3);R(g,hl,px,py+yy,T,1);R(g,'#857A68',px,py+yy+3,T,1);
+        for(let q=0;q<2;q++){const cx=px+(r()*14|0);R(g,'#A89C84',cx,py+yy+1,2,1)}if(r()<.3)R(g,'#7FA65A',px+(r()*15|0),py+yy+2,1,1)}
+      if(up)R(g,'#5E5446',px,py,T,1);else{R(g,'rgba(0,0,0,.22)',px,py+12,T,2);R(g,'rgba(0,0,0,.1)',px,py+14,T,2)}
+      for(const [on,x0c,dir] of [[lE,px,1],[rE,px+T-4,-1]]){if(!on)continue;R(g,'#7C6A55',x0c,py,4,yEnd);R(g,'#9E8870',dir>0?x0c:x0c+3,py,1,yEnd);R(g,'#4A3B2E',dir>0?x0c+3:x0c,py,1,yEnd);
+        for(let yy=2;yy<yEnd;yy+=5)R(g,'#5E4E3E',x0c,py+yy,4,1);if(up){R(g,'#4C9A3E',x0c,py,4,2);R(g,'#2F6B2C',x0c,py+2,4,1)}}}}
   g.save();g.translate(-x0,-y0);eachObj(x0-120,y0-16,x0+CPX+120,y0+CPX+16,o=>paintShadow(g,o));g.restore();
   stats.built++;return c}
 function getChunk(cx,cy){const k=cy*NCX+cx;let e=chunkCache.get(k);
@@ -3566,15 +3576,24 @@ function worldRebuild(){if(WORLD_V===2)return;
   for(const [ox,oy,w] of [[19,47,3],[63,67,3],[32,66,2.6],[101,76,2.4],[110,23,2.4],[112,70,2.2],[5,9,2.2],[9,53,2.2],[28,102,2.4]]){const [nx,ny]=TPT(ox,oy);targets.push([nx,ny,w])}
   targets.push([DAM.x+6,DAM.y+2,2.4],[118,43,2.2],[9,70,2.4],[157,110,2.4],[95,11,2.2]);
   targets.sort((a,b)=>Math.hypot(a[0]*T-FX,a[1]*T-FY)-Math.hypot(b[0]*T-FX,b[1]*T-FY));
-  let lampN=0;ROAD_LAMPS.length=0;
+  /* a water crossing is replaced by a straight run along the bank-side row/column, so the bridge lines up with the road on both banks */
+  const straight=p=>{let k1=-1;for(let k=0;k<p.length;k++)if(RIV[p[k]]&&!BRG[p[k]]){k1=k;break}if(k1<1)return p;let k2=k1;while(k2+1<p.length&&RIV[p[k2+1]])k2++;if(k2+1>=p.length)return p;
+    const A=p[k1-1],B=p[k2+1],ax=A%MW,ay=A/MW|0,bx=B%MW,by=B/MW|0,hz=Math.abs(bx-ax)>=Math.abs(by-ay),seg=[];let x=ax,y=ay;
+    const sx=hz?(Math.sign(bx-ax)||1):0,sy=hz?0:(Math.sign(by-ay)||1);x+=sx;y+=sy;while(inB(x,y)&&RIV[idx(x,y)]){seg.push(idx(x,y));x+=sx;y+=sy}if(!inB(x,y))return p;seg.push(idx(x,y));
+    if(hz){while(y!==by){y+=Math.sign(by-y);seg.push(idx(x,y))}while(x!==bx){x+=Math.sign(bx-x);seg.push(idx(x,y))}}else{while(x!==bx){x+=Math.sign(bx-x);seg.push(idx(x,y))}while(y!==by){y+=Math.sign(by-y);seg.push(idx(x,y))}}
+    for(const i of seg)if(!RIV[i]&&(SOL[i]||(CLIFF[i]&&!stair(i))))return p;
+    XC={ax,ay,ex:hz?x:ax,ey:hz?ay:y,sx,sy};return p.slice(0,k1).concat(seg.slice(0,-1),p.slice(k2+1))};
+  let lampN=0,XC=null;ROAD_LAMPS.length=0;
   {const [mx,my]=TPT(31,47);targets.push([mx,my,2.6,'plaza'])}/* market -> HQ plaza: its own road, not just the nearest trunk */
   for(const [tx,ty,w,goal] of targets){if(!inB(tx,ty)||ty>=SAND(tx)-1)continue;/* open beach: no roads down to the sand */let p;
-    if(goal==='plaza'){const keep=NET.slice();for(let i=0;i<N;i++)NET[i]=G[i]===2?1:0;rampCost=1;p=route(tx,ty);rampCost=30;NET.set(keep)}else p=route(tx,ty);if(!p)continue;
+    if(goal==='plaza'){const keep=NET.slice();for(let i=0;i<N;i++)NET[i]=G[i]===2?1:0;rampCost=1;p=route(tx,ty);rampCost=30;NET.set(keep)}else p=route(tx,ty);if(!p)continue;XC=null;p=straight(p);
     for(let k=0;k<p.length;k++){const i=p[k];if(CLIFF[i]&&!stair(i)){const x=i%MW,y=i/MW|0;for(const xx of [x,x+1])for(const yy of [y-1,y,y+1]){const j=idx(xx,yy);if(CLIFF[j]===1){CLIFF[j]=2;SOL[j]=0}else if(CLIFF[j]===3){CLIFF[j]=4;SOL[j]=0}}}
       if(k){const a=p[k-1];if(!CLIFF[a]&&!CLIFF[i]&&HGT[a]!==HGT[i]){RAMP[a]=1;RAMP[i]=1}}}
     XR=p.filter(i=>RIV[i]||BRG[i]);/* bridges only next to where the route itself crosses water, not where the road disc grazes a lake shore */
     const q=smooth(p.map(i=>[i%MW+.5,(i/MW|0)+.5]));let acc=0;
     for(let k=0;k<q.length;k++){const [x,y]=q[k];disc(x,y,w/2);if(k){acc+=Math.hypot(x-q[k-1][0],y-q[k-1][1]);if(acc>12&&k+3<q.length){acc=0;const [nx,ny]=q[k+3],dx=nx-x,dy=ny-y,L=Math.hypot(dx,dy)||1,side=(lampN++%2)?1:-1;ROAD_LAMPS.push([Math.round(x-dy/L*side*(w/2+1.2)-.5),Math.round(y+dx/L*side*(w/2+1.2)-.5)])}}}
+    if(XC){/* straight road aprons on both banks, in line with the bridge */let ex=XC.ex,ey=XC.ey;if(XC.sx)ex=XC.ax+XC.sx;else ey=XC.ay+XC.sy;while(inB(ex,ey)&&BRG[idx(ex,ey)]){ex+=XC.sx;ey+=XC.sy}
+      for(let k=0;k<4;k++){disc(XC.ax-XC.sx*k+.5,XC.ay-XC.sy*k+.5,w/2);disc(ex+XC.sx*k+.5,ey+XC.sy*k+.5,w/2)}}
     for(const i of p)NET[i]=1;for(let i=0;i<N;i++)if(G[i]===1||BRG[i])NET[i]=1}
   for(let i=0;i<N;i++)if(stair(i))G[i]=1;
   for(const [x,y] of ROAD_LAMPS){if(!inB(x,y))continue;const i=idx(x,y);if(G[i]===0&&!SOL[i]&&!OCC[i]&&!CLIFF[i]&&!RAMP[i])addLamp(x*T+8,y*T+12)}
@@ -3600,9 +3619,10 @@ function worldRebuild(){if(WORLD_V===2)return;
   /* 8. keep interactables and doors clear, then hedges along non-cliff rims, trees, bushes, rocks */
   for(const it of INT){if(!Number.isFinite(it.x))continue;const tx=Math.floor(it.x/T),ty=Math.floor(it.y/T);mark(OCC,tx-1,ty-1,tx+1,ty+1)}
   for(const d of DOORS){const tx=Math.floor(d.x/T),ty=Math.floor(d.y/T);mark(OCC,tx-1,ty,tx+1,ty+2)}
+  for(const o of OBJ){if(!o.hedge||o.gen)continue;const tx=Math.floor((o.x+9)/T),ty=Math.floor((o.base-1)/T);if(!inB(tx,ty))continue;let edge=false;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(inB(tx+dx,ty+dy)&&HGT[idx(tx+dx,ty+dy)]!==HGT[idx(tx,ty)])edge=true;if(edge){o.hide=1;if(!CLIFF[idx(tx,ty)])SOL[idx(tx,ty)]=0}}/* old hedge rows that now sit on a terrace edge */
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=idx(x,y),h=HGT[i];if(!h||G[i]!==0||SOL[i]||RAMP[i]||CLIFF[i])continue;let rim=false;
     for(let dy=-1;dy<=1&&!rim;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const nx=x+dx,ny=y+dy;if(!inB(nx,ny))continue;const j=idx(nx,ny);if(HGT[j]<h&&!CLIFF[j]&&G[j]!==3&&G[j]!==9){rim=true;break}}
-    if(!rim)continue;let near=false;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(inB(x+dx,y+dy)&&(RAMP[idx(x+dx,y+dy)]||G[idx(x+dx,y+dy)]===1))near=true;if(near)continue;window.__hedge(x,y)}
+    if(!rim)continue;let near=false;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(inB(x+dx,y+dy)&&(RAMP[idx(x+dx,y+dy)]||G[idx(x+dx,y+dy)]===1))near=true;if(near)continue;SOL[i]=1;OCC[i]=1;CLIFF[i]=5}/* east/west terrace edge: a solid rock side face (drawn by hdTerrain), no hedge line */
   const R0=trng(5,9,2),rr=()=>R0();
   const species=(x,y)=>{const h=HGT[idx(x,y)],r=rr();if(h>=2)return r<.6?'p':r<.8?'n':'n2';if(y>=100)return r<.45?'ba':r<.7?'n':'n2';const w=DBOX('wind');if(x>=w[0]&&y>=w[1])return r<.35?'g':r<.6?'b':'n';const f=DBOX('farm');if(x<=f[2]&&y>=f[1])return r<.35?'ba':r<.7?'n':'n2';return r<.25?'b':r<.6?'n':'n2'};
   const tree=(x,y,k)=>{if(!inB(x,y))return;const i=idx(x,y);if((G[i]!==0&&G[i]!==4)||OCC[i]||SOL[i]||CLIFF[i])return;add({img:TREES[k],x:x*T+8-18,y:(y+1)*T-43,base:(y+1)*T-1,tree:1,tx:x,ty:y,gen:1});SOL[i]=1;mark(OCC,x-1,y-1,x+1,y)};
