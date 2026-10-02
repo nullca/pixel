@@ -688,9 +688,9 @@ function makeArena(){const S=336,h=168;const [c,x]=cv(S,S);
 /* ---------- objects + spatial buckets ---------- */
 const OBJ=[];
 const add=(o)=>{OBJ.push(o);return o};
-add({img:artReg('hq',makeHQ()),x:FX-121,y:42*T-149,base:42*T,mm:'#2B8878',tb:[56,34,70,41]});mark(SOL,56,36,70,41);mark(OCC,55,32,72,43);mark(SOL,56,42,59,43);mark(SOL,68,42,71,43);
+add({img:artReg('hq',makeHQ()),x:FX-121,y:42*T-149,base:42*T,mm:'#2B8878',tb:[56,34,70,41]});mark(SOL,56,36,70,41);mark(OCC,55,32,72,43);
 add({img:artReg('library',makeLibrary()),x:12*T-1,y:16*T-97,base:16*T,mm:'#5E4DA8',tb:[12,11,20,15]});mark(SOL,12,12,20,15);mark(OCC,11,8,21,16);
-add({img:artReg('house_edu',makeHouse('#5E4DA8','#453789','EDU')),x:26*T-1,y:20*T-79,base:20*T,mm:'#5E4DA8',tb:[26,16,30,19]});mark(SOL,26,18,30,19);mark(OCC,25,14,31,20);mark(SOL,21,21,24,22);mark(OCC,20,20,25,23);
+add({img:artReg('house_edu',makeHouse('#5E4DA8','#453789','EDU')),x:26*T-1,y:20*T-79,base:20*T,mm:'#5E4DA8',tb:[26,16,30,19]});mark(SOL,26,18,30,19);mark(OCC,25,14,31,20);mark(OCC,20,20,25,23);
 const HOUSES=[['IT','#3A7BD5','#2A5DA6',90,41,'บ้านแผนก IT','สมาชิกแผนก IT ช่วยกันแต่งบ้านหลังนี้ ยิ่งทำเควสต์ครบ บ้านยิ่งได้ของตกแต่งใหม่'],
   ['HR','#1D9E75','#157A5B',101,39,'บ้านแผนก HR','บ้านของทีม HR ตอนนี้มีสวนดอกไม้เล็กๆ ที่ได้จากเควสต์เมื่อเดือนก่อน'],
   ['FIN','#F29B38','#D07A1E',112,39,'บ้านแผนก FIN','บ้านทีมการเงิน หน้าต่างสะอาดเป๊ะ ทุกอย่างเรียงเป็นระเบียบเหมือนงบดุล'],
@@ -955,7 +955,7 @@ const GSET={1:'path',2:'plaza',4:'forest',5:'paddy',7:'soil',8:'neon',9:'sea',10
 function gcls(x,y){x=x<0?0:x>=MW?MW-1:x;y=y<0?0:y>=MH?MH-1:y;const i=idx(x,y),v=G[i];
   if(v===3)return RIV[i]?'water':null;
   if(v===6)return BRG[i]?'water':y>=100?(y>=SEA0(x)?'sea':'sand'):null;/* bridge decks sit on river; beach pier on sea/sand */
-  if(v===2){const b=MKT_BOX||(MKT_BOX=DBOX('market'));if(x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3])return 'market'}/* market square: cobbles */
+  if(v===1){const b=MKT_BOX||(MKT_BOX=[...TPT(7,39),...TPT(31,55)]);if(x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3])return 'market'}/* market square (under the old checker floor decal) */
   return GSET[v]||null}
 function gclaim(tx,ty){const c=gcls(tx,ty);return !!(c&&artImg(c+'_15'))}
 function paintCorners(g,cx,cy,x0,y0){const tx0=cx*CH-1,ty0=cy*CH-1,tx1=Math.min(MW,(cx+1)*CH),ty1=Math.min(MH,(cy+1)*CH),CW=tx1-tx0+1,K=new Array(CW*(ty1-ty0+1));
@@ -1008,7 +1008,7 @@ function paintTile(g,tx,ty,px,py){
   for(let k=0;k<3;k++)R(g,'#8BD26A',px+ri(15),py+ri(15),1,1);
   const fl=(tx>=117&&ty>=82&&ty<114)?.35:.07;
   if(v===0&&r()<fl){const a=px+3+ri(9),b=py+3+ri(9),fc=['#FFFFFF','#F7D154','#F5A3C7','#F26B6B','#B7A4FF'][ri(5)];R(g,'#3F8A3A',a+1,b+2,1,2);R(g,fc,a,b+1,3,1);R(g,fc,a+1,b,1,3);R(g,'#F2C14E',a+1,b+1,1,1)}}
-function paintShadow(g,o){if(o.ell){pell(g,o.x+o.ell[0],o.base-2,o.ell[1],o.ell[2],'rgba(16,40,20,.28)');return}if(o.tree)pell(g,o.x+21,o.base-2,13,4,'rgba(16,40,20,.28)');else if(o.img.width>40)R(g,'rgba(16,40,20,.22)',o.x+6,o.base-3,o.img.width-4,6);else pell(g,o.x+(o.img.width>>1)+1,o.base-1,o.img.width>>1,2,'rgba(16,40,20,.25)')}
+function paintShadow(g,o){if(o.fen)return;/* PNG fence pieces carry their own shadow */if(o.ell){pell(g,o.x+o.ell[0],o.base-2,o.ell[1],o.ell[2],'rgba(16,40,20,.28)');return}if(o.tree)pell(g,o.x+21,o.base-2,13,4,'rgba(16,40,20,.28)');else if(o.img.width>40)R(g,'rgba(16,40,20,.22)',o.x+6,o.base-3,o.img.width-4,6);else pell(g,o.x+(o.img.width>>1)+1,o.base-1,o.img.width>>1,2,'rgba(16,40,20,.25)')}
 /* ---- HD terrain pass: curved river banks, bulging rock cliffs, side faces, smooth terrace light (per pixel, after tiles) ---- */
 function thH(x,y){let h=(Math.imul(x|0,374761393)+Math.imul(y|0,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967296}
 function thV(x,y){const xi=Math.floor(x),yi=Math.floor(y),fx=x-xi,fy=y-yi,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy),a=thH(xi,yi),b=thH(xi+1,yi),c=thH(xi,yi+1),d=thH(xi+1,yi+1);return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy}
@@ -1028,6 +1028,7 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
   for(let y=0;y<FH;y++)for(let x=0;x<FW;x++){const X=tx0-M+x,Y=ty0-M+y;let v=isW(X,Y)*.5;if(v||isW(X-1,Y)||isW(X+1,Y)||isW(X,Y-1)||isW(X,Y+1)){v+=(isW(X-1,Y)+isW(X+1,Y)+isW(X,Y-1)+isW(X,Y+1))*.1+(isW(X-1,Y-1)+isW(X+1,Y-1)+isW(X-1,Y+1)+isW(X+1,Y+1))*.025}
     WF[y*FW+x]=v;if(v)anyW=1;const cX=Math.max(0,Math.min(MW-1,X)),cY=Math.max(0,Math.min(MH-1,Y)),h=HGT[idx(cX,cY)],gS=G[idx(cX,cY)];SF[y*FW+x]=gS===10||gS===9||gS===3?1:0;PF[y*FW+x]=gS===1?1:0;if(gS===10||gS===1)anyS=1;HF[y*FW+x]=h;if(h)anyH=1;
     const hb=h*.5+(hAt(X-1,Y)+hAt(X+1,Y)+hAt(X,Y-1)+hAt(X,Y+1))*.1+(hAt(X-1,Y-1)+hAt(X+1,Y-1)+hAt(X-1,Y+1)+hAt(X+1,Y+1))*.025;HB[y*FW+x]=hb;if(hb!==h)anyStep=1}
+  if(artImg('cliff_3'))anyStep=0;/* PNG cliff set (paintCliffs) draws terrace edges */
   if(!anyW&&!anyH&&!anyS&&!anyStep)return;
   const wSet=!!artImg('water_15'),bSet=!!(artImg('sand_15')&&artImg('path_15'));/* PNG corner sets already draw river banks and sand/path edges */
   const bil=(F,u,v)=>{u-=tx0-M+.5;v-=ty0-M+.5;const xi=Math.max(0,Math.min(FW-2,Math.floor(u))),yi=Math.max(0,Math.min(FH-2,Math.floor(v))),fx=Math.max(0,Math.min(1,u-xi)),fy=Math.max(0,Math.min(1,v-yi)),o=yi*FW+xi;
@@ -1114,13 +1115,29 @@ function hdTerrain(c,g,cx,cy,x0,y0,HK){
         else if(v>=.36){const pb=thH(Math.floor(wx/3),Math.floor(wy/3));if(pb>.86){const fx=wx/3-Math.floor(wx/3),fy=wy/3-Math.floor(wy/3);set(o,...(fy<.4&&fx<.6?C.pebH:C.peb))}else set(o,...((thH(wx*2|0,wy*2|0)<.2)?C.wet2:C.wet))}
         else if(v>=.3&&((lx0+ly0)&1)===0)mix(o,C.wet,.55)}}}
   g.putImageData(img,ox,oy);flatPaint()}
+/* PNG cliffs (assets/G09_cliff): dual-grid pieces 16x32 drawn on vertices (half-tile offset), one pass per height level; bits NW=1 NE=2 SW=4 SE=8 = that
+   tile is at least this level. A south edge hangs a 1.5 tile rock face over the CLIFF 1/3 rows below it; east/west edges get a thin side wall.
+   Vertices touching a road ramp stay open. Stair flights (CLIFF 2 over 4, 2-3 wide) use stairs_2w / stairs_3w; 1-wide steps keep the code stairs. */
+function stairW(tx,ty){if(CLIFF[idx(tx,ty)]===4)ty--;let a=tx,b=tx;while(a>0&&CLIFF[idx(a-1,ty)]===2)a--;while(b<MW-1&&CLIFF[idx(b+1,ty)]===2)b++;return b-a+1}
+function paintCliffs(g,cx,cy,x0,y0){const hA=(x,y)=>HGT[idx(x<0?0:x>=MW?MW-1:x,y<0?0:y>=MH?MH-1:y)],rp=(x,y)=>inB(x,y)&&RAMP[idx(x,y)],rd=(x,y)=>inB(x,y)&&G[idx(x,y)]===1;
+  for(let L=1;L<=3;L++)for(let ty=Math.max(1,cy*CH-2);ty<=Math.min(MH-1,(cy+1)*CH);ty++)for(let tx=Math.max(1,cx*CH);tx<=Math.min(MW-1,(cx+1)*CH);tx++){
+    const m=(hA(tx-1,ty-1)>=L?1:0)|(hA(tx,ty-1)>=L?2:0)|(hA(tx-1,ty)>=L?4:0)|(hA(tx,ty)>=L?8:0);if(!m||m===15)continue;
+    if(rp(tx-1,ty-1)||rp(tx,ty-1)||rp(tx-1,ty)||rp(tx,ty))continue;
+    if(m&12&&(rd(tx-1,ty-1)||rd(tx,ty-1)||rd(tx-1,ty)||rd(tx,ty)||rd(tx-1,ty+1)||rd(tx,ty+1)))continue;/* side / north edges stay open where a road runs across (south faces use stairs) */
+    let im=artImg('cliff_'+m);if(m===3){const hu=(Math.imul(tx,2654435761)^Math.imul(ty+L,40503))>>>0,vr=hu%24===7?'b':['','','','c','d','','c',''][hu%8];/* b = cave hole: rare */im=(vr&&artImg('cliff_3'+vr))||im}
+    if(im)g.drawImage(im,tx*T-T/2-x0,ty*T-T/2-y0,T,2*T)}}
+function paintStairs(g,cx,cy,x0,y0){
+  for(let ty=Math.max(0,cy*CH-2);ty<Math.min(MH,(cy+1)*CH+1);ty++)for(let tx=Math.max(1,cx*CH-3);tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty);
+    if(CLIFF[i]!==2||CLIFF[i-1]===2)continue;const w=stairW(tx,ty),im=w===3?artImg('stairs_3w'):w===2?artImg('stairs_2w'):null;if(im)g.drawImage(im,tx*T-x0,ty*T-T/2-y0,w*T,2*T)}}
 function paintChunk(cx,cy){const HK=artImg('grass_1')?2:1;const [c,g]=cv(CPX*HK,CPX*HK);if(HK>1)g.scale(HK,HK);const x0=cx*CPX,y0=cy*CPX;/* HD ground: chunk painted at 2x so 32px PNG tiles keep full detail */
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++)paintTile(g,tx,ty,tx*T-x0,ty*T-y0);
   if(artReg.img)paintCorners(g,cx,cy,x0,y0);
   try{hdTerrain(c,g,cx,cy,x0,y0,HK)}catch(e){hookErr&&hookErr(e)}
-  for(const d of DEC)if(!d.hide&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img._hd||d.img,d.x-x0,d.y-y0,d.img.width,d.img.height);
+  if(artImg('cliff_3'))paintCliffs(g,cx,cy,x0,y0);/* before decals: footpath decals run over terrace edges */
+  for(const d of DEC)if(!d.hide&&!(d.noArt&&artImg(d.noArt))&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img._hd||d.img,d.x-x0,d.y-y0,d.img.width,d.img.height);
+  const cArt=!!artImg('cliff_3');if(cArt)paintStairs(g,cx,cy,x0,y0);
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty),px=tx*T-x0,py=ty*T-y0;
-    if(CLIFF[i]===2||CLIFF[i]===4){/* stone stairs cut into the cliff: treads lit from above, dark risers, rock cheeks where the flight ends */
+    if((CLIFF[i]===2||CLIFF[i]===4)&&!(cArt&&stairW(tx,ty)>=2)){/* stone stairs cut into the cliff: treads lit from above, dark risers, rock cheeks where the flight ends */
       const st=(x,y)=>inB(x,y)&&(CLIFF[idx(x,y)]===2||CLIFF[idx(x,y)]===4),up=CLIFF[i]===2,lE=!st(tx-1,ty),rE=!st(tx+1,ty),yEnd=up?16:12,r=trng(tx,ty,41);
       for(let yy=0;yy<yEnd;yy+=4){const gy=(up?0:16)+yy,k=gy/28,tr=k<.3?'#DCD2BC':k<.6?'#CFC4AC':'#C0B49A',hl=k<.3?'#F0E8D6':k<.6?'#E3D9C4':'#D6CBB4';
         R(g,tr,px,py+yy,T,3);R(g,hl,px,py+yy,T,1);R(g,'#857A68',px,py+yy+3,T,1);
@@ -2345,7 +2362,7 @@ HOOKS.top.push(()=>{if(scene!=='town'||!visAny(...TP(19*T,47*T),300))return;cons
   for(const l of LANTERNS){const sx=SNP(l.x-cam.x),sy=SNP(l.y-cam.y+Math.sin(t*2+l.x)*1);R(ctx,'#0A1418',sx-3,sy-1,7,8);R(ctx,'#E2534A',sx-2,sy,5,6);R(ctx,'#F2C14E',sx-2,sy,5,1);R(ctx,'#F2C14E',sx-2,sy+5,5,1);R(ctx,'#FFE0A0',sx-1,sy+2,1,2)}
   for(const n of NOTES){const sx=SNP(n.x-cam.x),sy=SNP(n.y-cam.y),a=Math.max(0,1-n.t/2);ctx.globalAlpha=a;R(ctx,n.c,sx,sy,3,2);R(ctx,n.c,sx+2,sy-5,1,6);R(ctx,n.c,sx+2,sy-5,3,1);ctx.globalAlpha=1}});
 {const W=23*T,H=15*T;const [c,x]=cv(W,H);for(let yy=0;yy<H;yy+=16)for(let xx=0;xx<W;xx+=16){const k=((xx+yy)/16)%2;R(x,k?'#D9B98A':'#E6CDA0',xx,yy,16,16);R(x,'#C9A77A',xx,yy,16,1);R(x,'#C9A77A',xx,yy,1,16);if(((xx/16)+(yy/16))%5===0){R(x,'#C0412E',xx+6,yy+6,4,4);R(x,'#F2C14E',xx+7,yy+7,2,2)}}
-  R(x,'#8E5A33',0,0,W,2);R(x,'#8E5A33',0,H-2,W,2);R(x,'#8E5A33',0,0,2,H);R(x,'#8E5A33',W-2,0,2,H);DEC.unshift({img:c,x:8*T,y:40*T})}
+  R(x,'#8E5A33',0,0,W,2);R(x,'#8E5A33',0,H-2,W,2);R(x,'#8E5A33',0,0,2,H);R(x,'#8E5A33',W-2,0,2,H);DEC.unshift({img:c,x:8*T,y:40*T,noArt:'market_15'})}
 INT.push({x:15*T+8,y:55*T+8,r:22,my:-50,act:()=>openShop('fruit')});INT.push({x:19*T+8,y:55*T+8,r:22,my:-50,act:()=>openShop('toy')});INT.push({x:29*T+8,y:41*T+8,r:20,my:-46,act:()=>openShop('balloon')});
 
 /* ================= round 4 ================= */
@@ -3483,6 +3500,12 @@ function TP(x,y){const o=TOFF(x,y);return [x+o[0],y+o[1]]}
 function TPT(tx,ty){const d=distAt(tx,ty);return [tx+d[5],ty+d[6]]}
 function DBOX(name){const d=DIST.find(q=>q[0]===name);return [d[1]+d[5],d[2]+d[6],d[3]+d[5],d[4]+d[6]]}
 const WATERFALLS=[],CRYS_DECOR=[];
+/* PNG fences (assets/G11_fences): once the set loads, each ranch fence object gets the piece matching its fence neighbours.
+   The canvas keeps the old 18x20 size (layout keys unchanged); the 32px piece is kept as _hd for the zoomed draw. */
+let FEN_DONE=0,CLF_DONE=0;
+function fenceCv(m){const im=artImg('fence_'+m),[c,x]=cv(18,20),[h,hx]=cv(36,40);hx.drawImage(im,2,6);x.drawImage(im,1,3,16,16);c._hd=h;return c}
+function fenceArt(){const fo=OBJ.filter(o=>o.img===FEN_H||o.img===FEN_V),key=o=>Math.floor((o.x+1)/T)+','+Math.floor((o.base-1)/T),has=new Set(fo.map(key)),cache={};
+  for(const o of fo){const [x,y]=key(o).split(',').map(Number),m=(has.has(x+','+(y-1))?1:0)|(has.has((x+1)+','+y)?2:0)|(has.has(x+','+(y+1))?4:0)|(has.has((x-1)+','+y)?8:0);o.fen=1;o.img=cache[m]||(cache[m]=fenceCv(m))}chunkCache.clear()}
 /* PNG waterfalls (assets/G07_waterfall, 3 frames): each run of drop tiles is widened to the river's full width and drawn as
    lip / fall / fall / splash rows (left, mid, right modules); a run below the dam wall gets the dam spillway sprite */
 let WF_RUNS=null;
@@ -3494,6 +3517,8 @@ function wfArt(L,vis){const runs=WF_RUNS||(WF_RUNS=wfRuns()),f='_f'+(1+((t*8)|0)
     if(r.dam){const im=artImg('dam_spill'+f);if(!im)continue;const h=Math.round(w*im.height/im.width);L.push({base:py+h,fn:()=>ctx.drawImage(im,SNP(px-cam.x),SNP(py-2-cam.y),w,h)});continue}
     L.push({base:py+2*T+8,fn:()=>{for(let x=r.a;x<=r.b;x++){const col=r.a===r.b?'mid':x===r.a?'left':x===r.b?'right':'mid',sx=SNP(x*T-cam.x);
       ['top','fall','fall','bottom'].forEach((row,k)=>{const im=artImg('wf_'+row+'_'+col+f);if(im)ctx.drawImage(im,sx,SNP(py+(k-1)*T-cam.y),T,T)})}}})}}
+HOOKS.update.push(()=>{if(!FEN_DONE&&artImg('fence_15')){FEN_DONE=1;fenceArt()}
+  if(!CLF_DONE&&artImg('cliff_3')){CLF_DONE=1;for(let i=0;i<CLIFF.length;i++)if(CLIFF[i]===3)SOL[i]=0}});/* PNG cliff faces end 1.5 tiles below the edge: the 2nd face row is walkable */
 HOOKS.town.push((L,vis)=>{if(artImg('wf_fall_mid_f1')){wfArt(L,vis);return}for(const [x,y] of WATERFALLS){const px=x*T,py=y*T;if(!vis(px+8,py+8,24))continue;L.push({base:py+T+1,fn:()=>{const sx=SNP(px-cam.x),sy=SNP(py-cam.y);
   R(ctx,'rgba(230,247,255,.85)',sx,sy-6,T,T+6);for(let k=0;k<5;k++){const ox=(k*3+((t*40+k*7)|0))%T,len=4+(k*5)%7,oy=((t*60+k*9)%(T+6))-6;R(ctx,'#BFE6FA',sx+ox,sy+oy,1,len)}
   for(let k=0;k<4;k++){const a=(t*2+k*1.7)%1;R(ctx,'rgba(255,255,255,'+(1-a).toFixed(2)+')',sx+2+k*3,sy+T-2-a*4,2,2)}}})}
