@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: midway, POSTGRES_PASSWORD: midway, POSTGRES_DB: midway_quest }
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data, ./migrations:/docker-entrypoint-initdb.d:ro]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://midway:midway@db:5432/midway_quest?sslmode=disable
+      REDIS_ADDR: redis:6379
+    ports: ["8080:8080"]
+    depends_on: [db, redis]
+volumes: { pgdata: {} }
