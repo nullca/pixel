@@ -956,7 +956,15 @@ const chunkCache=new Map();let frameNo=0,builtThis=0;const stats={built:0,drawn:
 const noise=(x,y)=>Math.sin(x*.33+Math.cos(y*.21)*2.1)+Math.cos(y*.29-x*.13)*.9;
 // PNG ground tiles (assets/01_ground_tiles): center tile per ground type, plus an edge/corner tile where it meets grass
 const TILE_ART={0:'tile_grass',1:'tile_path',2:'tile_plaza',3:'tile_water',4:'tile_forest',5:'tile_paddy',6:'tile_bridge',7:'tile_dike',8:'tile_neon',9:'tile_sea',10:'tile_sand'};
-function tileArt(g,tx,ty,px,py,i,v){const nm=TILE_ART[v];if(!nm||(v===6&&!BRG[i]))return false;
+// corner ("dual grid") autotile sets: drawn on vertices, half a tile offset; corner bits NW=1 NE=2 SW=4 SE=8 = neighbouring tile is this ground type
+const CORNER_SETS=[{v:1,n:'path'}];
+function cornerSet(v){for(const c of CORNER_SETS)if(c.v===v&&artImg(c.n+'_15'))return c;return null}
+function paintCorners(g,cx,cy,x0,y0){for(const cs of CORNER_SETS){if(!artImg(cs.n+'_15'))continue;const is=(x,y)=>inB(x,y)&&G[idx(x,y)]===cs.v;
+  for(let ty=cy*CH;ty<=Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<=Math.min(MW,(cx+1)*CH);tx++){
+    const m=(is(tx-1,ty-1)?1:0)|(is(tx,ty-1)?2:0)|(is(tx-1,ty)?4:0)|(is(tx,ty)?8:0);if(!m)continue;
+    let im=artImg(cs.n+'_'+m);if(m===15){const hu=(Math.imul(tx,2654435761)^Math.imul(ty,40503))>>>0,vr=['','','b','c','d'][hu%5];im=(vr&&artImg(cs.n+'_15'+vr))||im}
+    if(im)g.drawImage(im,tx*T-T/2-x0,ty*T-T/2-y0,T,T)}}}
+function tileArt(g,tx,ty,px,py,i,v){if(cornerSet(v))v=0;const nm=TILE_ART[v];if(!nm||(v===6&&!BRG[i]))return false;
   if(v===0){const h=Math.imul(tx,73856093)^Math.imul(ty,19349663),hu=h>>>0;
     if(artImg('grass_1')){/* HD grass set T01: 32px variants (6/7 have flowers), darker near forest, sparse overlays */
       const nearF=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>inB(tx+dx,ty+dy)&&G[idx(tx+dx,ty+dy)]===4);
@@ -1001,6 +1009,7 @@ function paintTile(g,tx,ty,px,py){
 function paintShadow(g,o){if(o.ell){pell(g,o.x+o.ell[0],o.base-2,o.ell[1],o.ell[2],'rgba(16,40,20,.28)');return}if(o.tree)pell(g,o.x+21,o.base-2,13,4,'rgba(16,40,20,.28)');else if(o.img.width>40)R(g,'rgba(16,40,20,.22)',o.x+6,o.base-3,o.img.width-4,6);else pell(g,o.x+(o.img.width>>1)+1,o.base-1,o.img.width>>1,2,'rgba(16,40,20,.25)')}
 function paintChunk(cx,cy){const HK=artImg('grass_1')?2:1;const [c,g]=cv(CPX*HK,CPX*HK);if(HK>1)g.scale(HK,HK);const x0=cx*CPX,y0=cy*CPX;/* HD ground: chunk painted at 2x so 32px PNG tiles keep full detail */
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++)paintTile(g,tx,ty,tx*T-x0,ty*T-y0);
+  if(artReg.img)paintCorners(g,cx,cy,x0,y0);
   for(const d of DEC)if(!d.hide&&d.x<x0+CPX&&d.x+d.img.width>x0&&d.y<y0+CPX&&d.y+d.img.height>y0)g.drawImage(d.img,d.x-x0,d.y-y0);
   for(let ty=cy*CH;ty<Math.min(MH,(cy+1)*CH);ty++)for(let tx=cx*CH;tx<Math.min(MW,(cx+1)*CH);tx++){const i=idx(tx,ty),px=tx*T-x0,py=ty*T-y0;
     if(HGT[i]){R(g,'rgba(255,250,210,.07)',px,py,T,T);if(tx>0&&!HGT[idx(tx-1,ty)])R(g,'rgba(0,0,0,.12)',px,py,2,T);if(tx<MW-1&&!HGT[idx(tx+1,ty)]){R(g,'rgba(0,0,0,.18)',px+13,py,3,T);R(g,'rgba(0,0,0,.08)',px+16,py,3,T)}}
