@@ -635,14 +635,25 @@ const isForest=(x,y)=>x>=46&&x<=80&&y<=28;
 function fillG(x0,y0,x1,y1,v){for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(inB(x,y))G[idx(x,y)]=v}
 function mark(a,x0,y0,x1,y1){for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(inB(x,y))a[idx(x,y)]=1}
 for(let y=0;y<MH;y++)for(let x=0;x<MW;x++)G[idx(x,y)]=isForest(x,y)?4:0;
-const riverX=y=>85+Math.round(Math.sin(y*.13)*1.5);
-for(let y=0;y<MH;y++){const c=riverX(y);for(let x=c-1;x<=c+1;x++){const i=idx(x,y);G[i]=3;RIV[i]=1;SOL[i]=1}}
-fillG(2,30,125,32,1);fillG(2,62,125,64,1);fillG(42,2,44,92,1);
-fillG(8,48,57,50,1);fillG(69,48,125,50,1);
-fillG(62,19,64,29,1);fillG(62,55,64,72,1);fillG(62,42,64,44,1);
-fillG(15,16,17,29,1);fillG(29,20,30,29,1);
-fillG(105,12,107,29,1);fillG(108,21,109,22,1);
-fillG(8,40,30,54,1);
+const riverX=y=>85+Math.round(Math.sin(y*.09+.6)*1.6+Math.sin(y*.23)*.7);/* meandering river; width breathes 3-4 tiles */
+for(let y=0;y<MH;y++){const c=riverX(y),wl=Math.sin(y*.31+1)>.35?2:1;for(let x=c-wl;x<=c+1;x++){const i=idx(x,y);G[i]=3;RIV[i]=1;SOL[i]=1}}
+/* organic roads: each road is a chain of junction nodes; between two nodes the centre line bends in a gentle arc
+   (zero offset at the nodes, so roads still meet where they used to), width breathes with noise, junctions are rounded */
+{const rn=trng(7,3,11),road=(x,y)=>{if(inB(x,y))G[idx(x,y)]=1};
+  const disc=(cx,cy,r)=>{for(let y=Math.floor(cy-r-1);y<=cy+r+1;y++)for(let x=Math.floor(cx-r-1);x<=cx+r+1;x++)if(Math.hypot(x-cx,y-cy)<=r)road(x,y)};
+  const line=(pts,w,amp)=>{for(let i=0;i+1<pts.length;i++){const [ax,ay]=pts[i],[bx,by]=pts[i+1],L=Math.hypot(bx-ax,by-ay),nx=-(by-ay)/L,ny=(bx-ax)/L;
+      const A=Math.min(2.4,L*.11)*(rn()<.5?-1:1)*(.55+rn()*.45)*amp,ph=rn()*6.28;
+      for(let t=0;t<=1;t+=.3/L){const o=A*Math.sin(Math.PI*t),wv=w/2+.45*Math.sin(t*L*.33+ph)+.25*Math.sin(t*L*.9+ph*2);disc(ax+(bx-ax)*t+nx*o,ay+(by-ay)*t+ny*o,Math.max(.9,wv))}}
+    for(const [x,y] of pts)disc(x,y,w/2+.7)};
+  line([[0,31],[16,31],[29.5,31],[43,31],[63,31],[106,31],[127,31]],3.2,1);
+  line([[0,63],[43,63],[63,63],[127,63]],3.2,1);
+  line([[43,0],[43,31],[43,49],[43,63],[43,95]],3.2,1);
+  line([[8,49],[30,49],[43,49],[56,49]],3,.8);line([[70,49],[95,49],[127,49]],3,.35);
+  line([[63,18],[63,31],[63,38]],3,.6);line([[63,58],[63,63],[63,72]],3,.5);
+  line([[16,15],[16,31]],2.6,.7);line([[29.5,19],[29.5,31]],2.2,.7);line([[106,11],[106,31]],3,.6);
+  /* market square: rounded blob with a ragged edge instead of a rectangle */
+  for(let y=37;y<=57;y++)for(let x=5;x<=33;x++){const a=Math.atan2(y-47,x-19),r=Math.hypot((x-19)/12.4,(y-47)/8.2),edge=1+.06*Math.sin(a*5+1)+.04*Math.sin(a*9);if(r<=edge)road(x,y)}}
+fillG(62,42,64,44,1);fillG(108,21,109,22,1);
 fillG(93,41,94,47,1);fillG(104,39,105,47,1);fillG(115,39,116,47,1);fillG(123,45,124,47,1);fillG(93,58,94,61,1);fillG(123,59,124,61,1);fillG(101,51,103,61,1);fillG(118,51,118,53,1);for(let y=50;y<=60;y++)for(let x=96;x<=108;x++)if(Math.hypot(x-102,(y-55)*1.15)<=4.6)G[idx(x,y)]=1;
 fillG(115,65,117,71,1);
 function field(x0,y0,x1,y1){for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=idx(x,y);const dike=x===x0||x===x1||y===y0||y===y1||(x-x0)%6===0||(y-y0)%5===0;G[i]=dike?7:5;SOL[i]=0}}
