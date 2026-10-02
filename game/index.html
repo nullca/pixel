@@ -753,7 +753,7 @@ function makeFoodTruck(){const [c,x]=cv(66,46);x.translate(1,1);R(x,'#F5A3C7',2,
 function makeNet(){const [c,x]=cv(12,106);x.translate(1,1);R(x,'#6E777D',4,0,2,104);R(x,'#3A444B',3,0,4,3);R(x,'#3A444B',3,101,4,3);for(let y=4;y<100;y+=3)R(x,'rgba(255,255,255,.75)',2,y,6,1);for(let xx=2;xx<8;xx+=2)R(x,'rgba(255,255,255,.55)',xx,4,1,96);R(x,'#FFFFFF',1,3,8,1);R(x,'#FFFFFF',1,100,8,1);return outline(c,'#26343D')}
 function makeBikeRack(){const [c,x]=cv(44,22);x.translate(1,1);R(x,'#6E777D',0,16,42,2);for(const bx of [2,22]){pcirc(x,bx+4,14,4,'#26343D');pcirc(x,bx+4,14,2,'#D9D9D0');pcirc(x,bx+15,14,4,'#26343D');pcirc(x,bx+15,14,2,'#D9D9D0');R(x,bx===2?'#E2534A':'#3A93CB',bx+5,8,10,2);R(x,'#26343D',bx+13,5,3,1)}return outline(c,'#1B1510')}
 {const DC=[['IT','#3A7BD5'],['HR','#1D9E75'],['FIN','#F29B38'],['OPS','#8E5A33'],['MKT','#DC6F9A'],['LAW','#34495E']];DC.forEach(([lb,col])=>{const h=HOUSES.find(q=>q[0]===lb);const fx=h[3]-1,fy=h[4];const img=makeFlag2(col);add({img,x:fx*T+2,y:(fy+1)*T-49,base:(fy+1)*T});SOL[idx(fx,fy)]=1})}
-place(makeFoodTruck(),96,46,4);place(makeUmbrella('#DC6F9A','#FFF4E6'),110,46,2);place(makeBikeRack(),100,46,3);
+place(makeFoodTruck(),97,46,4);place(makeUmbrella('#DC6F9A','#FFF4E6'),110,46,2);place(makeBikeRack(),101,46,3);
 const NETOBJ=add({img:makeNet(),x:112*T+2,y:52*T-6,base:58*T});for(let y=52;y<=57;y++)SOL[idx(112,y)]=1;
 place(makeSign('fish'),98,76,1);place(makeSign('fish'),108,20,1);
 /* ---------- beach, sea, museum, hall of fame ---------- */
@@ -837,6 +837,11 @@ const bush=makeBush(false),bushF=makeBush(true),rock=makeRock();
 for(let i=0;i<420;i++){const x=2+(rnd()*124|0),y=2+(rnd()*92|0),k=idx(x,y);if((G[k]!==0&&G[k]!==4)||OCC[k]||SOL[k]||(x>=53&&x<=72&&y>=7&&y<=20))continue;
   const nearWater=nearRoad(x,y,1)&&(RIV[idx(Math.min(MW-1,x+1),y)]||RIV[idx(Math.max(0,x-1),y)]);
   const img=nearWater||G[k]===4?(rnd()<.6?rock:bush):(rnd()<.35?bushF:(rnd()<.8?bush:rock));add({img,x:x*T+8-(img.width>>1),y:(y+1)*T-img.height-1,base:(y+1)*T-2});SOL[k]=1;OCC[k]=1}
+/* clear random trees/bushes that hide landmarks (runs after generation so the rnd() sequence is unchanged) */
+function clearObjs(x0,y0,x1,y1,small){for(let i=OBJ.length-1;i>=0;i--){const o=OBJ[i];if(!o.img||!(o.tree||(small&&o.img.width<=20&&o.img.height<=20)))continue;
+  const tx=o.tree?o.tx:Math.floor((o.x+o.img.width/2)/T),ty=o.tree?o.ty:Math.floor((o.base-1)/T);if(tx<x0||tx>x1||ty<y0||ty>y1)continue;OBJ.splice(i,1);SOL[idx(tx,ty)]=0}}
+clearObjs(107,52,117,57,true);clearObjs(76,42,76,42);clearObjs(81,42,81,42);clearObjs(2,7,9,9);
+for(const [sx,sy] of [[4,14],[80,26],[124,60],[4,93],[96,92]])clearObjs/* GYPSY_SPOTS (declared later) */(sx-2,sy,sx+3,sy+3);
 const BS=8*T,BNX=Math.ceil(WW/BS),BNY=Math.ceil(WH/BS),buckets=Array.from({length:BNX*BNY},()=>[]);
 for(const o of OBJ){const bx=Math.max(0,Math.min(BNX-1,Math.floor((o.x+o.img.width/2)/BS))),by=Math.max(0,Math.min(BNY-1,Math.floor(o.base/BS)));buckets[by*BNX+bx].push(o)}
 function eachObj(x0,y0,x1,y1,fn){const bx0=Math.max(0,Math.floor(x0/BS)),bx1=Math.min(BNX-1,Math.floor(x1/BS)),by0=Math.max(0,Math.floor(y0/BS)),by1=Math.min(BNY-1,Math.floor(y1/BS));
@@ -2227,7 +2232,7 @@ const fah2=npc({who:'june',name:'June (FIN)',col:'#F7C08A',fr:makeChar({skin:'#F
 for(const n of [bad1,bad2,tan,fah2]){npcs.push(n);PORT[n.who]={name:n.name,col:n.col,img:n.fr[0][0]};INT.push({get x(){return n.x},get y(){return n.y},r:18,my:-38,label:'คุย',act:()=>talkNPC(n)})}
 HOOKS.update.push(()=>{const ph=(t*.9)%2,hit=ph<1?ph:2-ph;bad1.f=hit<.12?1:0;bad2.f=hit>.88?1:0});
 HOOKS.top.push(()=>{if(scene!=='town'||!visAny(112*T,55*T,120))return;const ph=(t*.9)%2,k=ph<1?ph:2-ph,x0=bad1.x+8,x1=bad2.x-8,sx=SNP(x0+(x1-x0)*k-cam.x),sy=SNP(bad1.y-20-Math.sin(k*Math.PI)*26-cam.y);R(ctx,'#FFFFFF',sx-1,sy-1,3,2);R(ctx,'#F2C14E',sx-1,sy+1,3,1)});
-INT.push({x:96*T+8,y:47*T+4,r:26,my:-50,label:'ร้านค้า',act:()=>openShop('icecream')});
+INT.push({x:97*T+8,y:47*T+4,r:26,my:-50,label:'ร้านค้า',act:()=>openShop('icecream')});
 
 /* ---- kite result popup ---- */
 const _endKite=endKite;endKite=function(){_endKite();const K=KT;$('keMedal').textContent=K.medal?'เหรียญ'+K.medal:'จบเกม';$('keMedal').className='kemedal '+(K.medal==='ทอง'?'gold':K.medal==='เงิน'?'silver':K.medal?'bronze':'');
@@ -2472,8 +2477,8 @@ HOOKS.top.push(()=>{if(!MT)return;const sx=SNP(MT.x-cam.x),sy=SNP(MT.y-cam.y),k=
 
 /* ================= swaying grass that reacts to the player ================= */
 const GBS=8*T,GBX=Math.ceil(WW/GBS),GBY=Math.ceil(WH/GBS),GRB=Array.from({length:GBX*GBY},()=>[]);
-{const r=trng(11,7,5);for(let ty=2;ty<MH-2;ty++)for(let tx=2;tx<MW-2;tx++){const i=idx(tx,ty);if(G[i]!==0||SOL[i]){r();continue}const n=r();if(n>.4)continue;const cnt=n<.1?2:1;
-  for(let k=0;k<cnt;k++){const gx=tx*T+2+r()*12,gy=ty*T+5+r()*10;GRB[Math.floor(gy/GBS)*GBX+Math.floor(gx/GBS)].push({x:gx,y:gy,h:4+(r()*4|0),c:r()<.5?0:1,p:r()*6.28})}}}
+{const r=trng(11,7,5);for(let ty=2;ty<MH-2;ty++)for(let tx=2;tx<MW-2;tx++){const i=idx(tx,ty);if(G[i]!==0||SOL[i]){r();continue}const n=r();if(n>.4)continue;const cnt=n<.1?2:1,court=tx>=107&&tx<=117&&ty>=52&&ty<=57;
+  for(let k=0;k<cnt;k++){const gx=tx*T+2+r()*12,gy=ty*T+5+r()*10;const g={x:gx,y:gy,h:4+(r()*4|0),c:r()<.5?0:1,p:r()*6.28};if(!court)GRB[Math.floor(gy/GBS)*GBX+Math.floor(gx/GBS)].push(g)}}}
 const GRASS_C=[['#3F8A3A','#4E9A3E','#7CC259'],['#4C9A3E','#5DAE4A','#8BD26A']];
 function drawTuft(g){const c=GRASS_C[g.c],sx=SNP(g.x-cam.x),sy=SNP(g.y-cam.y);let lean=Math.sin(t*1.6+g.x*.05+g.y*.03)*1.1+Math.sin(t*.45+g.x*.012)*.7*(isRain()?2:1);
   const dx=g.x-player.x,dy=g.y-player.y,d=Math.hypot(dx,dy);if(d<15)lean+=(dx>=0?1:-1)*(15-d)/15*3.6;
