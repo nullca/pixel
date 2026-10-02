@@ -385,6 +385,39 @@ function trng(a,b,k){let s=(Math.imul(a,73856093)^Math.imul(b,19349663)^Math.imu
 // name -> PNG. When a PNG loads it is painted into every registered canvas (same size), so all users update in place.
 function artReg(n,c){const m=artReg.m||(artReg.m={});(m[n]||(m[n]=[])).push(c);return c}
 function artImg(n){return (artReg.img&&artReg.img[n])||null}
+// sprites replaced as a whole by PNG sets 05/06 (every call registers its canvas; colour variants share one PNG)
+function artWrap(f,n){return function(){return artReg(typeof n==='function'?n.apply(null,arguments):n,f.apply(null,arguments))}}
+makeFoodTruck=artWrap(makeFoodTruck,'food_truck');
+makeTeaCart=artWrap(makeTeaCart,'tea_cart');
+makeStall=artWrap(makeStall,'market_stall');
+makeGypsyCart=artWrap(makeGypsyCart,'gypsy_cart');
+makeBalloonCart=artWrap(makeBalloonCart,'balloon_cart');
+makeBeachBar=artWrap(makeBeachBar,'beach_bar');
+makeTukTuk=artWrap(makeTukTuk,'tuk_tuk');
+makeBusStop=artWrap(makeBusStop,'bus_stop');
+makeArch=artWrap(makeArch,'arch_wind_run');
+makeBins=artWrap(makeBins,'bins');
+makeKiteStand=artWrap(makeKiteStand,'kite_stand');
+makeHotAir=artWrap(makeHotAir,'hot_air_balloon');
+makeStage=artWrap(makeStage,'stage');
+makeBoat=artWrap(makeBoat,'boat');
+makeBeachUmb=artWrap(makeBeachUmb,'beach_umbrella');
+makeSolar=artWrap(makeSolar,'solar_panel');
+makeBench=artWrap(makeBench,'bench');
+makeLamp=artWrap(makeLamp,'lamp');
+makePostbox=artWrap(makePostbox,'postbox');
+makeMailbox=artWrap(makeMailbox,'mailbox');
+makeNotice=artWrap(makeNotice,'notice_board');
+makePlanter=artWrap(makePlanter,'planter');
+makeUmbrella=artWrap(makeUmbrella,'patio_umbrella');
+makeBikeRack=artWrap(makeBikeRack,'bike_rack');
+makeHay=artWrap(makeHay,'hay');
+makeTrough=artWrap(makeTrough,'trough');
+makeScarecrow=artWrap(makeScarecrow,'scarecrow');
+makeStatue=artWrap(makeStatue,'statue');
+makePaperLantern=artWrap(makePaperLantern,'paper_lantern');
+makeCrystalBall=artWrap(makeCrystalBall,'crystal_ball');
+makeFence=artWrap(makeFence,v=>v?'fence_v':'fence_h');
 function cv(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=false;return [c,x]}
 function R(x,c,a,b,w,h){x.fillStyle=c;x.fillRect(a,b,w,h)}
 function pcirc(x,cx,cy,r,c){x.fillStyle=c;for(let y=-r;y<=r;y++){const w=Math.floor(Math.sqrt(Math.max(0,r*r-y*y+r*.8)));x.fillRect(cx-w,cy+y,w*2+1,1)}}
