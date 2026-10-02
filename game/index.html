@@ -324,7 +324,7 @@ kbd{font-family:"Chakra Petch",sans-serif;font-weight:600;background:#23414C;col
     <div class="lbrow"><b>จัดวางแผนที่</b><small id="layStat"></small></div>
     <div class="lbrow"><small id="layInfo"></small></div>
     <div class="lbrow"><button id="layHideBtn" type="button">ซ่อน/แสดง</button><button id="layResetOne" type="button">คืนที่เดิม</button><button id="layUndo" type="button">ย้อนกลับ</button>
-      <label><input type="checkbox" id="layDec"> ลากลายพื้นได้</label><button id="layExport" type="button">ดาวน์โหลด layout.json</button><button id="layImport" type="button">นำเข้าไฟล์</button><input type="file" id="layFile" accept=".json,application/json" hidden>
+      <label><input type="checkbox" id="layDec"> ลากลายพื้นได้</label><label><input type="checkbox" id="layPts" checked> แสดงจุดระบบ</label><button id="layExport" type="button">ดาวน์โหลด layout.json</button><button id="layImport" type="button">นำเข้าไฟล์</button><input type="file" id="layFile" accept=".json,application/json" hidden>
       <button id="layDiscard" type="button">ทิ้งร่าง</button><button id="layExit" type="button" class="primary">ออก</button></div>
     <details><summary>เผยแพร่ขึ้น GitHub (deploy อัตโนมัติ)</summary><div class="lbrow"><input id="layRepo" placeholder="owner/repo" autocomplete="off"><input id="layBranch" placeholder="main" autocomplete="off"><input id="layTok" type="password" placeholder="GitHub token (Contents: Read and write)" autocomplete="off"><button id="layPush" type="button" class="primary">เผยแพร่</button></div>
       <small>token เก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น ใช้ fine-grained token ที่ให้สิทธิ์เฉพาะ repo นี้</small></details>
@@ -684,7 +684,7 @@ function makeTukTuk(){const [c,x]=cv(44,30);x.translate(1,1);
   R(x,'#3A7BD5',2,12,38,9);R(x,'#2A5DA6',2,19,38,2);R(x,'#F2C14E',2,14,38,1);R(x,'#9FD4F0',32,6,6,6);R(x,'#8E5A33',12,9,16,4);
   pcirc(x,8,23,3,'#26343D');pcirc(x,34,23,3,'#26343D');pcirc(x,21,23,3,'#26343D');R(x,'#FFE9A8',38,14,2,3);return outline(c,'#141A22')}
 function makeMailbox(){const [c,x]=cv(14,24);x.translate(1,1);R(x,'#6E777D',5,14,2,8);R(x,'#C0412E',1,2,10,13);R(x,'#9E2F22',9,2,2,13);R(x,'#C0412E',2,0,8,2);R(x,'#1B1B26',3,5,6,1);R(x,'#F2C14E',4,9,4,3);return outline(c,'#1B1510')}
-function place(img,tx,ty,w){add({img,x:tx*T+8-(img.width>>1),y:(ty+1)*T-img.height,base:(ty+1)*T});for(let i=0;i<(w||1);i++){SOL[idx(tx-((w||1)>>1)+i,ty)]=1}mark(OCC,tx-((w||1)>>1)-1,ty-2,tx+((w||1)>>1)+1,ty)}
+function place(img,tx,ty,w){const o=add({img,x:tx*T+8-(img.width>>1),y:(ty+1)*T-img.height,base:(ty+1)*T});o.fpT=[];for(let i=0;i<(w||1);i++){SOL[idx(tx-((w||1)>>1)+i,ty)]=1;o.fpT.push([tx-((w||1)>>1)+i,ty])}mark(OCC,tx-((w||1)>>1)-1,ty-2,tx+((w||1)>>1)+1,ty)}
 place(makeSpiritHouse(),75,47,1);
 place(makeNotice(),47,46,2);
 place(makeMailbox(),78,53,1);
@@ -715,7 +715,7 @@ function makeArch(){const [c,x]=cv(68,50);x.translate(1,1);R(x,'#F6EEDB',2,10,5,
 function makeKiteStand(){const [c,x]=cv(30,40);x.translate(1,1);R(x,'#8E5A33',3,16,2,22);R(x,'#8E5A33',23,16,2,22);R(x,'#6E4526',1,16,26,2);
   const kite=(kx,ky,a,b)=>{for(let i=0;i<6;i++){R(x,a,kx-i,ky+i,i*2+1,1);R(x,b,kx-i,ky+12-i,i*2+1,1)}R(x,'#1B1B26',kx,ky,1,13)};kite(8,1,'#E2534A','#F2C14E');kite(20,3,'#3A7BD5','#FFFFFF');
   R(x,'#F6EEDB',0,30,28,6);R(x,'#C0412E',0,30,28,2);return outline(c,'#1B1510')}
-place(makeArch(),63,67,1);SOL[idx(61,67)]=1;SOL[idx(65,67)]=1;SOL[idx(63,67)]=0;
+place(makeArch(),63,67,1);SOL[idx(61,67)]=1;SOL[idx(65,67)]=1;SOL[idx(63,67)]=0;OBJ[OBJ.length-1].fpT=[[61,67],[65,67]];
 mark(OCC,73,33,82,41);const umb1=makeUmbrella('#F29B38','#FFF4E6'),umb2=makeUmbrella('#1D9E75','#FFF4E6');
 place(umb1,76,35,2);place(umb2,80,35,2);place(umb1,77,38,2);place(makeTeaCart(),80,40,2);
 {const sp=makeSolar();for(const sx of [92,95,98,101])for(const sy of [16,19,22,25])place(sp,sx,sy,2)}
@@ -2771,78 +2771,113 @@ $('econReset').addEventListener('click',()=>{Object.assign(CFG,CFG_DEF);try{loca
 $('econClose').addEventListener('click',closeEcon);$('econSaveTop').addEventListener('click',()=>$('econSave').click());$('btnEcon').addEventListener('click',()=>{closeMap();openEcon()});
 
 /* ================= map layout editor (admin): drag objects, publish layout.json ================= */
-// layout.json: {v:1,obj:{key:[x,base]|0},dec:{key:[x,y]|0}}  (0 = hidden). key = original "x,base,width" of an
+// layout.json: {v:1,obj:{key:[x,base]|0},dec:{key:[x,y]|0},pts:{id:[x,y]}}  (0 = hidden). key = original "x,base,width" of an
 // OBJ entry or "x,y,width" of a DEC ground decal, so keys stay valid as long as the code that places it is unchanged.
+// pts = "system points" the game reads coordinates from (bus stop arrival, race checkpoints, exits, spawn spots...).
+// A point with a host object moves with it; every point can also be dragged on its own in the editor.
 // Players load the published game/layout.json; the editor keeps an unpublished draft in localStorage.
-const LAY={on:false,sel:null,drag:null,undo:[],data:{v:1,obj:{},dec:{}},pub:{v:1,obj:{},dec:{}},K:new Map(),KD:new Map(),orphans:0};
+const LAY={on:false,ready:false,sel:null,drag:null,undo:[],data:{v:1,obj:{},dec:{},pts:{}},pub:{v:1,obj:{},dec:{},pts:{}},K:new Map(),KD:new Map(),P:new Map(),orphans:0,showPts:true};
 const LAY_DRAFT='midway-quest-layout-draft',LAY_GH='midway-quest-gh';
 function layBucket(o){const bx=Math.max(0,Math.min(BNX-1,Math.floor((o.x+o.img.width/2)/BS))),by=Math.max(0,Math.min(BNY-1,Math.floor(o.base/BS)));return buckets[by*BNX+bx]}
-{const free=it=>{const d=Object.getOwnPropertyDescriptor(it,'x');return d&&'value' in d};
-  const items=[...INT.filter(free),...DOORS,...npcs.filter(n=>n.still&&free(n))],owner=new Map();
+function ptGet(p){return p.tile?[p.o[p.kx]*T+8,p.o[p.ky]*T+8]:[p.o[p.kx],p.o[p.ky]]}
+function ptSet(p,x,y){if(p.tile){p.o[p.kx]=Math.floor(x/T);p.o[p.ky]=Math.floor(y/T)}else{p.o[p.kx]=Math.round(x);p.o[p.ky]=Math.round(y)}if(p.on)p.on()}
+function layGypsyReset(){if(GY){for(const [a,b] of GY.tiles)SOL[idx(a,b)]=0;GY=null}}
+// runs on first use (after every feature block has registered its INT/DOORS/points)
+function layInit(){if(LAY.ready)return;LAY.ready=true;
+  const free=it=>{const d=Object.getOwnPropertyDescriptor(it,'x');return d&&'value' in d};
+  const items=[...INT.filter(free),...DOORS,...npcs.filter(n=>n.still&&free(n))],owner=new Map(),claim=new Set();
+  for(const o of OBJ){if(!o.img)continue;const fp=o.tree?[[o.tx,o.ty]]:o.fpT||null;if(fp)for(const [x,y] of fp)claim.add(x+','+y)}
   for(const o of OBJ){if(!o.img)continue;let k=Math.round(o.x)+','+Math.round(o.base)+','+o.img.width;while(LAY.K.has(k))k+='+';LAY.K.set(k,o);o.lk=k;
-    o.l0={x:o.x,y:o.y,base:o.base,tx:o.tx,ty:o.ty,tb:o.tb};o.att=[];
-    const [x0,y0,x1,y1]=o.tree?[o.tx,o.ty,o.tx,o.ty]:o.tb?o.tb:[Math.floor((o.x+o.img.width*.2)/T),Math.floor((o.base-1)/T),Math.floor((o.x+o.img.width*.8)/T),Math.floor((o.base-1)/T)];
-    o.fp0=[];for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(inB(x,y)&&SOL[idx(x,y)])o.fp0.push([x,y]);o.fp=o.fp0;
+    o.l0={x:o.x,y:o.y,base:o.base,tx:o.tx,ty:o.ty,tb:o.tb};o.att=[];o.pins=[];o.fp0=[];
+    const by=Math.floor((o.base-1)/T),add=(x,y)=>{if(inB(x,y)&&SOL[idx(x,y)])o.fp0.push([x,y])};
+    if(o.tree)add(o.tx,o.ty);else if(o.fpT)for(const [x,y] of o.fpT)add(x,y);
+    else if(o.tb){for(let y=o.tb[1];y<=o.tb[3];y++)for(let x=o.tb[0];x<=o.tb[2];x++)add(x,y)}
+    else for(let x=Math.floor(o.x/T);x<=Math.floor((o.x+o.img.width-1)/T);x++)if(!claim.has(x+','+by))add(x,by);
+    o.fp=o.fp0;
     if(o.light){const l=LIGHTS.find(q=>q.x===o.x+6&&q.y===o.y+7);if(l)o.att.push(l)}
     if(o.tree||o.img.width<20)continue;
-    for(const it of items){if(it.x<o.x+2||it.x>o.x+o.img.width-2||it.y<o.base-6||it.y>o.base+22)continue;const d=Math.abs(it.x-(o.x+o.img.width/2))+Math.abs(it.y-o.base),p=owner.get(it);if(!p||d<p.d)owner.set(it,{o,d})}}
-  for(const [it,{o}] of owner)o.att.push(it);
-  for(const d of DEC){let k=Math.round(d.x)+','+Math.round(d.y)+','+d.img.width;while(LAY.KD.has(k))k+='+';LAY.KD.set(k,d);d.lk=k;d.l0={x:d.x,y:d.y}}}
+    for(const it of items){if(it.x<o.x+2||it.x>o.x+o.img.width-2||it.y<o.base-6||it.y>o.base+22)continue;const d=Math.abs(it.x-(o.x+o.img.width/2))+Math.abs(it.y-o.base),q=owner.get(it);if(!q||d<q.d)owner.set(it,{o,d})}}
+  for(const [it,{o}] of owner){o.att.push(it);if(it.k&&DOORS.includes(it)){const l=LIGHTS.find(q=>q.x===it.x&&q.y===it.y+2);if(l)o.att.push(l)}}
+  const lockAt=[[FX,FY,'ลานน้ำพุ (Paksa และตำแหน่งเกิด)'],[PX,PY,'บ่อตกปลา'],[LX,LY,'ทะเลสาบตกปลา'],[AX,AY,'ลานบอส'],[111*T+8,22*T+8,'ท่าตกปลา'],[112*T,55*T,'สนามแบด (NPC และลูกขนไก่)']];
+  for(const d of DEC){let k=Math.round(d.x)+','+Math.round(d.y)+','+d.img.width;while(LAY.KD.has(k))k+='+';LAY.KD.set(k,d);d.lk=k;d.l0={x:d.x,y:d.y};
+    const L=lockAt.find(([x,y])=>x>=d.x&&y>=d.y&&x<d.x+d.img.width&&y<d.y+d.img.height);if(L)d.lock=L[2]}
+  // system points
+  const objAt=(tx,ty)=>OBJ.find(o=>o.fp0&&o.fp0.some(([x,y])=>x===tx&&y===ty))||null;
+  const pt=(id,label,o,kx,ky,host,extra)=>{if(!o)return;const p=Object.assign({id,label,o,kx,ky,host},extra||{});[p.x0,p.y0]=ptGet(p);LAY.P.set(id,p);if(host)host.pins.push(p)};
+  for(const [id,n,tx,ty] of STOPS)pt('stop:'+id,'ป้ายรถ: จุดลงรถ '+n,STOP_POS[id],'x','y',id==='know'?null:objAt(tx-1,ty));/* 'know' has no sign (see bus stop placement) */
+  RUN_CP.forEach((c,i)=>pt('run:'+i,i===RUN_CP.length-1?'วิ่งสายลม: เส้นชัย':'วิ่งสายลม: จุดที่ '+(i+1),c,'x','y',i===RUN_CP.length-1?objAt(61,67):null));
+  for(const d of DOORS){const sc=SCENES[d.k];if(!sc||!Array.isArray(sc.exitTo))continue;let host=null;for(const o of OBJ)if(o.att&&o.att.includes(d)){host=o;break}pt('exit:'+d.k,'ทางออกจากอาคาร ('+d.k+')',sc.exitTo,0,1,host)}
+  GYPSY_SPOTS.forEach((g,i)=>pt('gypsy:'+i,'รถเข็นโซเฟีย: '+g[2],g,0,1,null,{tile:1,on:layGypsyReset}));
+  FEATHERS.forEach((f,i)=>pt('feather:'+i,'ขนนกสายลม '+(i+1),f,'x','y',null));
+  CRYS.forEach((c,i)=>pt('crys:'+i,'คริสตัล '+(i+1),c,'x','y',null));MUSH.forEach((m,i)=>pt('mush:'+i,'เห็ดเรืองแสง '+(i+1),m,'x','y',null))}
 function laySetO(o,x,b,hide){if(!o.hide){for(const [tx,ty] of o.fp)SOL[idx(tx,ty)]=0;const B=layBucket(o),i=B.indexOf(o);if(i>=0)B.splice(i,1)}
   const dx=x-o.x,dy=b-o.base;o.x=x;o.y+=dy;o.base=b;for(const a of o.att){a.x+=dx;a.y+=dy;if(a.home){a.home.x+=dx;a.home.y+=dy}}
+  if(dx||dy)for(const p of o.pins){const [px,py]=ptGet(p);ptSet(p,px+dx,py+dy);if(LAY.data.pts[p.id])LAY.data.pts[p.id]=ptGet(p)}
   const tdx=Math.round((x-o.l0.x)/T),tdy=Math.round((b-o.l0.base)/T);o.fp=o.fp0.map(([tx,ty])=>[tx+tdx,ty+tdy]).filter(([tx,ty])=>inB(tx,ty));
   if(o.tree){o.tx=o.l0.tx+tdx;o.ty=o.l0.ty+tdy}if(o.l0.tb)o.tb=[o.l0.tb[0]+tdx,o.l0.tb[1]+tdy,o.l0.tb[2]+tdx,o.l0.tb[3]+tdy];
   o.hide=hide?1:0;if(!hide){for(const [tx,ty] of o.fp)SOL[idx(tx,ty)]=1;layBucket(o).push(o)}}
 function laySetD(d,x,y,hide){d.x=x;d.y=y;d.hide=hide?1:0}
-function laySet(s,x,y,hide){if(s.t==='o')laySetO(s.o,x,y,hide);else laySetD(s.o,x,y,hide)}
-const layPos=s=>[s.o.x,s.t==='o'?s.o.base:s.o.y];
-function layApply(d){d=d&&typeof d==='object'?d:{};
+function laySet(s,x,y,hide){if(s.t==='o')laySetO(s.o,x,y,hide);else if(s.t==='d')laySetD(s.o,x,y,hide);else ptSet(s.o,x,y)}
+const layPos=s=>s.t==='p'?ptGet(s.o):[s.o.x,s.t==='o'?s.o.base:s.o.y];
+function pinDef(p){const h=p.host;return [p.x0+(h?h.x-h.l0.x:0),p.y0+(h?h.base-h.l0.base:0)]}
+const layHome=s=>s.t==='p'?pinDef(s.o):[s.o.l0.x,s.t==='o'?s.o.l0.base:s.o.l0.y];
+function layApply(d){layInit();d=d&&typeof d==='object'?d:{};
   for(const k in LAY.data.obj){const o=LAY.K.get(k);if(o)laySetO(o,o.l0.x,o.l0.base,false)}for(const k in LAY.data.dec){const o=LAY.KD.get(k);if(o)laySetD(o,o.l0.x,o.l0.y,false)}
-  LAY.data={v:1,obj:{},dec:{}};LAY.orphans=0;
-  for(const [m,K,t] of [[d.obj,LAY.K,'o'],[d.dec,LAY.KD,'d']])for(const k in (m||{})){const o=K.get(k),v=m[k];if(!o||!(v===0||(Array.isArray(v)&&isFinite(v[0])&&isFinite(v[1])))){LAY.orphans++;continue}
+  for(const p of LAY.P.values()){const [x,y]=ptGet(p);if(x!==p.x0||y!==p.y0)ptSet(p,p.x0,p.y0)}
+  LAY.data={v:1,obj:{},dec:{},pts:{}};LAY.orphans=0;const ok=v=>Array.isArray(v)&&isFinite(v[0])&&isFinite(v[1]);
+  for(const [m,K,t] of [[d.obj,LAY.K,'o'],[d.dec,LAY.KD,'d']])for(const k in (m||{})){const o=K.get(k),v=m[k];if(!o||o.lock||!(v===0||ok(v))){LAY.orphans++;continue}
     if(v===0)laySet({t,o},...layPos({t,o}),true);else laySet({t,o},Math.round(v[0]),Math.round(v[1]),false);LAY.data[t==='o'?'obj':'dec'][k]=v===0?0:[Math.round(v[0]),Math.round(v[1])]}
+  for(const k in (d.pts||{})){const p=LAY.P.get(k),v=d.pts[k];if(!p||!ok(v)){LAY.orphans++;continue}ptSet(p,v[0],v[1]);LAY.data.pts[k]=ptGet(p)}
   chunkCache.clear()}
-function layRec(s){const o=s.o,m=s.t==='o'?LAY.data.obj:LAY.data.dec,[x,y]=layPos(s),home=x===o.l0.x&&y===(s.t==='o'?o.l0.base:o.l0.y);
-  if(home&&!o.hide)delete m[o.lk];else m[o.lk]=o.hide?0:[x,y];try{localStorage.setItem(LAY_DRAFT,JSON.stringify(LAY.data))}catch(e){}layInfo()}
-function layJSON(d){const sec=m=>{const ks=Object.keys(m).sort();return '{'+ks.map(k=>'\n  '+JSON.stringify(k)+':'+JSON.stringify(m[k])).join(',')+(ks.length?'\n }':'}')};return '{\n "v":1,\n "obj":'+sec(d.obj)+',\n "dec":'+sec(d.dec)+'\n}\n'}
+function layRec(s){const o=s.o,[x,y]=layPos(s),[hx,hy]=layHome(s),home=x===hx&&y===hy;
+  if(s.t==='p'){if(home)delete LAY.data.pts[o.id];else LAY.data.pts[o.id]=[x,y]}
+  else{const m=s.t==='o'?LAY.data.obj:LAY.data.dec;if(home&&!o.hide)delete m[o.lk];else m[o.lk]=o.hide?0:[x,y]}
+  try{localStorage.setItem(LAY_DRAFT,JSON.stringify(LAY.data))}catch(e){}layInfo()}
+function layJSON(d){const sec=m=>{const ks=Object.keys(m||{}).sort();return '{'+ks.map(k=>'\n  '+JSON.stringify(k)+':'+JSON.stringify(m[k])).join(',')+(ks.length?'\n }':'}')};return '{\n "v":1,\n "obj":'+sec(d.obj)+',\n "dec":'+sec(d.dec)+',\n "pts":'+sec(d.pts)+'\n}\n'}
 function layHidden(){const out=[];for(const k in LAY.data.obj)if(LAY.data.obj[k]===0&&LAY.K.get(k))out.push(LAY.K.get(k));return out}
 function layAlpha(img,x,y){try{return img.getContext('2d').getImageData(x|0,y|0,1,1).data[3]>16}catch(e){return true}}
-function layHit(wx,wy){let best=null,bb=-1e9;const test=o=>{if(wx<o.x||wy<o.y||wx>=o.x+o.img.width||wy>=o.y+o.img.height||o.base<=bb||!layAlpha(o.img,wx-o.x,wy-o.y))return;bb=o.base;best=o};
+function layHit(wx,wy){if(LAY.showPts){let bp=null,bd=7;for(const p of LAY.P.values()){const [x,y]=ptGet(p),d=Math.hypot(x-wx,y-wy);if(d<bd){bd=d;bp=p}}if(bp)return {t:'p',o:bp}}
+  let best=null,bb=-1e9;const test=o=>{if(wx<o.x||wy<o.y||wx>=o.x+o.img.width||wy>=o.y+o.img.height||o.base<=bb||!layAlpha(o.img,wx-o.x,wy-o.y))return;bb=o.base;best=o};
   eachObj(wx-260,wy-20,wx+260,wy+280,test);for(const o of layHidden())test(o);if(best)return {t:'o',o:best};
   if($('layDec').checked){let bd=null,ba=1e12;for(const d of DEC){if(wx<d.x||wy<d.y||wx>=d.x+d.img.width||wy>=d.y+d.img.height)continue;const a=d.img.width*d.img.height;if(a<ba){ba=a;bd=d}}if(bd)return {t:'d',o:bd}}return null}
 function layMsg(t){$('layMsg').textContent=t||''}
-function layInfo(){const s=LAY.sel,n=Object.keys(LAY.data.obj).length+Object.keys(LAY.data.dec).length,dirty=JSON.stringify(LAY.data)!==JSON.stringify(LAY.pub);
-  let t='คลิกเลือกของแล้วลากไปวาง · ลากที่ว่างเพื่อเลื่อนกล้อง · Delete ซ่อน · ลูกศรขยับทีละช่อง · Ctrl+Z ย้อนกลับ · กด Alt ค้างขณะลากเพื่อวางละเอียดทีละพิกเซล';
-  if(s){const o=s.o,kind=s.t==='d'?'ลายพื้น':o.tree?'ต้นไม้':o.tb?'อาคาร':o.img.width<=20&&o.img.height<=20?'พุ่มไม้/ของเล็ก':'วัตถุ';const [x,y]=layPos(s);
-    t=kind+' · tile '+Math.floor((x+(s.t==='o'?o.img.width/2:0))/T)+','+Math.floor((y-(s.t==='o'?1:0))/T)+(o.hide?' · ซ่อนอยู่':'')+(o.att&&o.att.length?' · ย้ายพร้อมจุดกด/ประตู '+o.att.length+' จุด':'')+(o.tb?' · ระวัง: ของประกอบบางอย่างของอาคารอาจไม่ย้ายตาม':'')}
+function layInfo(){const s=LAY.sel,n=Object.keys(LAY.data.obj).length+Object.keys(LAY.data.dec).length+Object.keys(LAY.data.pts).length,dirty=JSON.stringify(LAY.data)!==JSON.stringify(LAY.pub);
+  let t='คลิกเลือกของแล้วลากไปวาง · จุดเพชร = จุดระบบ (เหลือง = ย้ายตามวัตถุ, เขียว = ลากเองได้) · ลากที่ว่างเพื่อเลื่อนกล้อง · Delete ซ่อน · ลูกศรขยับทีละช่อง · Ctrl+Z ย้อนกลับ · กด Alt ค้างขณะลากเพื่อวางละเอียดทีละพิกเซล';
+  if(s&&s.t==='p'){const p=s.o,[x,y]=ptGet(p);t='จุดระบบ: '+p.label+' · tile '+Math.floor(x/T)+','+Math.floor(y/T)+(p.host?' · ย้ายตามวัตถุที่ผูกอยู่อัตโนมัติ':'')}
+  else if(s){const o=s.o,kind=s.t==='d'?'ลายพื้น':o.tree?'ต้นไม้':o.tb?'อาคาร':o.img.width<=20&&o.img.height<=20?'พุ่มไม้/ของเล็ก':'วัตถุ';const [x,y]=layPos(s);
+    t=kind+' · tile '+Math.floor((x+(s.t==='o'?o.img.width/2:0))/T)+','+Math.floor((y-(s.t==='o'?1:0))/T)+(o.hide?' · ซ่อนอยู่':'')+(o.att&&o.att.length?' · ย้ายพร้อมจุดกด/ประตู '+o.att.length+' จุด':'')+(o.pins&&o.pins.length?' · มีจุดระบบผูกอยู่ '+o.pins.length+' จุด':'')+(o.lock?' · ย้ายไม่ได้: ผูกกับ'+o.lock:'')}
   $('layInfo').textContent=t;$('layStat').textContent='แก้ไว้ '+n+' ชิ้น'+(dirty?' · มีร่างที่ยังไม่เผยแพร่':' · ตรงกับที่เผยแพร่แล้ว')+(LAY.orphans?' · ข้าม '+LAY.orphans+' รายการที่หาของไม่เจอ':'')}
 function layDo(s,x,y,hide){const [px,py]=layPos(s);LAY.undo.push({s,x:px,y:py,hide:s.o.hide});if(LAY.undo.length>200)LAY.undo.shift();laySet(s,x,y,hide);layRec(s);chunkCache.clear()}
 function layOpen(){if(scene!=='town')return pop('ใช้ได้เฉพาะในเมือง','#B9C4C9');closeMap();LAY.on=true;LAY.sel=null;LAY.undo=[];game.classList.add('layedit');$('layBar').hidden=false;cvs.style.touchAction='none';
   let d=null;try{d=JSON.parse(localStorage.getItem(LAY_DRAFT)||'null')}catch(e){}layApply(d||LAY.pub);
   let g={};try{g=JSON.parse(localStorage.getItem(LAY_GH)||'{}')||{}}catch(e){}$('layRepo').value=g.repo||'nullca/pixel';$('layBranch').value=g.branch||'main';$('layTok').value=g.tok||'';layMsg(d?'โหลดร่างที่ยังไม่เผยแพร่':'');layInfo()}
 function layClose(){LAY.on=false;LAY.sel=null;LAY.drag=null;game.classList.remove('layedit');$('layBar').hidden=true;cvs.style.touchAction='';layApply(LAY.pub)}
-cvs.addEventListener('pointerdown',e=>{if(!LAY.on)return;e.stopImmediatePropagation();e.preventDefault();const [wx,wy]=toWorld(e),s=layHit(wx,wy);LAY.sel=s;layInfo();try{cvs.setPointerCapture(e.pointerId)}catch(err){}
-  LAY.drag=s?{s,wx,wy,p:layPos(s),from:[...layPos(s)],moved:false}:{pan:1,cx:e.clientX,cy:e.clientY,px:player.x,py:player.y}},true);
+cvs.addEventListener('pointerdown',e=>{if(!LAY.on)return;e.stopImmediatePropagation();e.preventDefault();const [wx,wy]=toWorld(e),s=layHit(wx,wy);LAY.sel=s;layInfo();layMsg(s&&s.o.lock?'ย้ายไม่ได้: ตำแหน่งนี้ผูกกับ'+s.o.lock+'ที่เขียนไว้ในโค้ด':'');try{cvs.setPointerCapture(e.pointerId)}catch(err){}
+  LAY.drag=s&&!s.o.lock?{s,wx,wy,p:layPos(s),from:[...layPos(s)],moved:false}:{pan:1,cx:e.clientX,cy:e.clientY,px:player.x,py:player.y}},true);
 cvs.addEventListener('pointermove',e=>{if(!LAY.on)return;e.stopImmediatePropagation();const g=LAY.drag;if(!g){const [wx,wy]=toWorld(e);cvs.style.cursor=layHit(wx,wy)?'grab':'default';return}
   if(g.pan){player.x=Math.max(8,Math.min(WW-8,g.px-(e.clientX-g.cx)/scale));player.y=Math.max(8,Math.min(WH-8,g.py-(e.clientY-g.cy)/scale));return}
-  const [wx,wy]=toWorld(e),o=g.s.o,y0=g.s.t==='o'?o.l0.base:o.l0.y;let x=g.p[0]+wx-g.wx,y=g.p[1]+wy-g.wy;
-  if(!e.altKey){x=o.l0.x+Math.round((x-o.l0.x)/T)*T;y=y0+Math.round((y-y0)/T)*T}else{x=Math.round(x);y=Math.round(y)}
+  const [wx,wy]=toWorld(e),o=g.s.o,[x0,y0]=g.s.t==='p'?[o.x0,o.y0]:[o.l0.x,g.s.t==='o'?o.l0.base:o.l0.y];let x=g.p[0]+wx-g.wx,y=g.p[1]+wy-g.wy;
+  if(!e.altKey){x=x0+Math.round((x-x0)/T)*T;y=y0+Math.round((y-y0)/T)*T}else{x=Math.round(x);y=Math.round(y)}
   const [cx,cy]=layPos(g.s);if(x===cx&&y===cy)return;g.moved=true;laySet(g.s,x,y,o.hide);if(g.s.t==='d')chunkCache.clear();cvs.style.cursor='grabbing'},true);
 function layUp(e){if(!LAY.on)return;e.stopImmediatePropagation();const g=LAY.drag;LAY.drag=null;if(!g||g.pan||!g.moved)return;
   LAY.undo.push({s:g.s,x:g.from[0],y:g.from[1],hide:g.s.o.hide});layRec(g.s);chunkCache.clear()}
 cvs.addEventListener('pointerup',layUp,true);cvs.addEventListener('pointercancel',layUp,true);
 addEventListener('keydown',e=>{if(!LAY.on||/^(INPUT|TEXTAREA|SELECT)$/.test((e.target&&e.target.tagName)||''))return;const s=LAY.sel,k=e.key;
   if((e.ctrlKey||e.metaKey)&&(k==='z'||k==='Z')){e.preventDefault();e.stopImmediatePropagation();$('layUndo').click();return}
-  if(!s)return;const D={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[k];
+  if(!s||s.o.lock)return;const D={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[k];
   if(D){e.preventDefault();e.stopImmediatePropagation();const st=e.altKey?1:T,[x,y]=layPos(s);layDo(s,x+D[0]*st,y+D[1]*st,s.o.hide);return}
   if(k==='Delete'||k==='Backspace'){e.preventDefault();e.stopImmediatePropagation();$('layHideBtn').click()}else if(k==='Escape'){e.stopImmediatePropagation();LAY.sel=null;layInfo()}},true);
 HOOKS.top.push(()=>{if(!LAY.on||scene!=='town')return;ctx.save();
   for(const o of layHidden()){if(o.x>cam.x+cw||o.x+o.img.width<cam.x||o.y>cam.y+ch||o.base<cam.y)continue;ctx.globalAlpha=.35;ctx.drawImage(o.img,SNP(o.x-cam.x),SNP(o.y-cam.y));ctx.globalAlpha=1;ctx.setLineDash([3,3]);ctx.strokeStyle='#E2534A';ctx.lineWidth=1;ctx.strokeRect(SNP(o.x-cam.x)+.5,SNP(o.y-cam.y)+.5,o.img.width-1,o.img.height-1);ctx.setLineDash([])}
-  const s=LAY.sel;if(s){const o=s.o;if(s.t==='o'){ctx.fillStyle='rgba(226,83,74,.35)';for(const [tx,ty] of o.fp)ctx.fillRect(tx*T-cam.x,ty*T-cam.y,T,T)}
+  const s=LAY.sel;if(LAY.showPts)for(const p of LAY.P.values()){const [x,y]=ptGet(p);if(x<cam.x-8||x>cam.x+cw+8||y<cam.y-8||y>cam.y+ch+8)continue;const sx=SNP(x-cam.x),sy=SNP(y-cam.y),on=s&&s.o===p;
+    ctx.fillStyle=on?'#FFFFFF':p.host?'#F2C14E':'#3FC1A8';ctx.strokeStyle='#0A1418';ctx.lineWidth=1.5/scale;ctx.beginPath();ctx.moveTo(sx,sy-5);ctx.lineTo(sx+5,sy);ctx.lineTo(sx,sy+5);ctx.lineTo(sx-5,sy);ctx.closePath();ctx.fill();ctx.stroke();
+    if(on){ctx.font='600 '+Math.max(5,12/scale)+'px "Chakra Petch",sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';const w=ctx.measureText(p.label).width+6/scale;ctx.fillStyle='rgba(10,20,24,.85)';ctx.fillRect(sx-w/2,sy-8-14/scale,w,14/scale);ctx.fillStyle='#FFFFFF';ctx.fillText(p.label,sx,sy-8)}}
+  if(s&&s.t!=='p'){const o=s.o;if(s.t==='o'){ctx.fillStyle='rgba(226,83,74,.35)';for(const [tx,ty] of o.fp)ctx.fillRect(tx*T-cam.x,ty*T-cam.y,T,T)}
     ctx.strokeStyle='#F2C14E';ctx.lineWidth=2/scale;ctx.strokeRect(SNP(o.x-cam.x),SNP(o.y-cam.y),o.img.width,o.img.height)}ctx.restore()});
 $('btnLayout').addEventListener('click',layOpen);$('layExit').addEventListener('click',layClose);
-$('layHideBtn').addEventListener('click',()=>{const s=LAY.sel;if(!s)return layMsg('เลือกของก่อน');layDo(s,...layPos(s),!s.o.hide)});
-$('layResetOne').addEventListener('click',()=>{const s=LAY.sel;if(!s)return layMsg('เลือกของก่อน');layDo(s,s.o.l0.x,s.t==='o'?s.o.l0.base:s.o.l0.y,false)});
+$('layHideBtn').addEventListener('click',()=>{const s=LAY.sel;if(!s)return layMsg('เลือกของก่อน');if(s.t==='p'||s.o.lock)return layMsg(s.t==='p'?'จุดระบบซ่อนไม่ได้ ลากไปวางที่ใหม่แทน':'ซ่อนไม่ได้: ผูกกับระบบเกม');layDo(s,...layPos(s),!s.o.hide)});
+$('layResetOne').addEventListener('click',()=>{const s=LAY.sel;if(!s)return layMsg('เลือกของก่อน');layDo(s,...layHome(s),false)});
+$('layPts').addEventListener('change',e=>{LAY.showPts=e.target.checked;if(!LAY.showPts&&LAY.sel&&LAY.sel.t==='p')LAY.sel=null;layInfo()});
 $('layUndo').addEventListener('click',()=>{const u=LAY.undo.pop();if(!u)return layMsg('ไม่มีอะไรให้ย้อนกลับ');laySet(u.s,u.x,u.y,u.hide);LAY.sel=u.s;layRec(u.s);chunkCache.clear()});
 $('layExport').addEventListener('click',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([layJSON(LAY.data)],{type:'application/json'}));a.download='layout.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);layMsg('ดาวน์โหลดแล้ว นำไปวางทับ game/layout.json ใน repo แล้ว push เข้า main')});
 $('layImport').addEventListener('click',()=>$('layFile').click());
@@ -2856,7 +2891,7 @@ $('layPush').addEventListener('click',async()=>{const repo=$('layRepo').value.tr
     const p=await fetch(api,{method:'PUT',headers:h,body:JSON.stringify(body)});if(!p.ok)throw new Error('บันทึกไม่สำเร็จ ('+p.status+')');
     LAY.pub=JSON.parse(JSON.stringify(LAY.data));try{localStorage.removeItem(LAY_DRAFT)}catch(e){}layMsg('บันทึกแล้ว GitHub Actions จะ deploy ขึ้นเว็บภายใน 1–2 นาที');layInfo()}catch(e){layMsg(e.message||'บันทึกไม่สำเร็จ')}});
 if(typeof fetch==='function'&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol))
-  fetch('layout.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d==='object'){LAY.pub={v:1,obj:d.obj||{},dec:d.dec||{}};if(!LAY.on)layApply(LAY.pub)}}).catch(()=>{});
+  fetch('layout.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d==='object'){LAY.pub={v:1,obj:d.obj||{},dec:d.dec||{},pts:d.pts||{}};if(!LAY.on)layApply(LAY.pub)}}).catch(()=>{});
 if(typeof location!=='undefined'&&/[?&]edit\b/.test(location.search||''))setTimeout(layOpen,1200);
 
 /* ================= retention: mailbox, login calendar, season pass, level rewards, story ================= */

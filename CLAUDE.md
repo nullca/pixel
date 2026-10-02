@@ -52,6 +52,10 @@ Approximate section order (search for the `/* ---- name ---- */` comments):
 Positions placed in code can be moved without editing code: Map → "จัดวางแผนที่ (แอดมิน)" (or open `index.html?edit`).
 Drag objects, then download `layout.json` or publish it to GitHub (commits `game/layout.json` → Pages redeploys).
 Keys are each object's original `x,base,width`, so **moving an object in code orphans its layout entry** (the editor reports skipped entries).
+**System points** (`LAY.P`, registered in `layInit`): coordinates a system reads at runtime (bus stop arrival `STOP_POS`,
+`RUN_CP`, interior `exitTo`, gypsy spots, feathers, crystals, mushrooms). They follow their host object and can be dragged on their own.
+**When a new system stores its own coordinates, register them in `layInit`**, or moving the object in the editor will leave that system behind.
+Decals whose position is a code constant (`FX`, `PX`, `LX`, `AX`, pier, badminton court) are locked.
 Hidden objects stay in `OBJ` (flag `o.hide`); never splice `OBJ` from the editor. `layout.json` is only fetched over http(s), not `file://`.
 
 ### Save data

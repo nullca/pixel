@@ -1,7 +1,7 @@
 global.localStorage={_d:{},getItem(k){return this._d[k]??null},setItem(k,v){this._d[k]=String(v)},removeItem(k){delete this._d[k]}};
 const {createCanvas}=require('@napi-rs/canvas');const fs=require('fs');
 const path=require('path');const html=fs.readFileSync(path.join(__dirname,'..','game','index.html'),'utf8');let js=html.match(/<script>\n([\s\S]*)\n<\/script>/)[1];
-js=js.replace("renderStats();renderQuests();\nsetTimeout","global.__g={S,SET,player,enterScene,goScene,closeDlg,SCENES,get scene(){return scene}};renderStats();renderQuests();\nsetTimeout");
+js=js.replace("renderStats();renderQuests();\nsetTimeout","global.__g={S,SET,player,enterScene,goScene,closeDlg,SCENES,get scene(){return scene},LAY,layApply,layInit,STOP_POS,RUN_CP,DOORS,OBJ};renderStats();renderQuests();\nsetTimeout");
 if(!js.includes('global.__g='))throw new Error('hook point not found: update tools/smoke-test.js');
 const listeners={};const els={};
 function mk(id){return {id,hidden_:0,append(){},querySelectorAll(){return []},value:'',dataset:{},closest(){return null},querySelector(){return mk('q')},_l:{},_h:'',get innerHTML(){return this._h},set innerHTML(v){this._h=v;this.children=[];this.firstChild={focus(){}}},style:{},hidden:['bagov','dashov','fishov','emotePop','mapov','dlg','sortov','kiteov','fishHint','race','fishCard','shopov','decoov','sortRes','kiteSkins','lookov','kiteEnd'].includes(id),textContent:'',children:[],firstChild:{focus(){}},classList:{s:new Set(),add(c){this.s.add(c)},remove(c){this.s.delete(c)},toggle(c,v){if(v===undefined)v=!this.s.has(c);v?this.s.add(c):this.s.delete(c);return v},contains(c){return this.s.has(c)}},addEventListener(n,f){(this._l[n]=this._l[n]||[]).push(f)},appendChild(c){this.children.push(c);this.firstChild=this.children[0]},focus(){},setAttribute(){},setPointerCapture(){},getBoundingClientRect(){return{left:0,top:0,width:100,height:100}},clientWidth:1372,clientHeight:1181,click(){(this._l.click||[]).forEach(f=>f({stopPropagation(){}}))},remove(){}}}
@@ -23,5 +23,12 @@ setTimeout(async()=>{let fail=0;const chk=(label)=>{const e=el('err')&&el('err')
  const spots=[['plaza',63,52],['market',19,47],['forest',62,14],['dept',106,50],['farm',30,78],['windmill',113,80],['beach',60,101],['arena',63,76]];
  for(const [n,x,y] of spots){__g.player.x=x*16;__g.player.y=y*16;step(16,10);chk('town:'+n)}
  for(const k of ['hq','hq2','kbase','dc','edu','mill1','mill2','museum','hof','island','house_IT']){if(!__g.SCENES[k]){console.log('skip',k);continue}__g.goScene(k,__g.SCENES[k].doorX,(__g.SCENES[k].rows-3)*16,0);await sl(650);step(16,8);chk('scene:'+k)}
+ // map layout editor: move every object 2 tiles right, check linked system points follow, then revert
+ {const L=__g.LAY;__g.layInit();const obj={};for(const [k,o] of L.K)obj[k]=[o.l0.x+32,o.l0.base];const stop=__g.STOP_POS.plaza,sx=stop.x,fin=__g.RUN_CP[__g.RUN_CP.length-1],fx=fin.x,ex=__g.SCENES.hq.exitTo[0];
+  __g.layApply({obj,pts:{'run:0':[100,100]}});const bad=[];if(stop.x!==sx+32)bad.push('bus stop arrival');if(fin.x!==fx+32)bad.push('race finish');if(__g.SCENES.hq.exitTo[0]!==ex+32)bad.push('hq exit');if(__g.RUN_CP[0].x!==100)bad.push('pin override');
+  for(const d of __g.DOORS){const o=__g.OBJ.find(q=>q.att&&q.att.includes(d));if(!o)bad.push('door '+d.k+' not attached')}
+  for(const [n,x,y] of spots){__g.player.x=x*16+32;__g.player.y=y*16;step(16,10);chk('layout moved:'+n)}
+  __g.layApply({});if(stop.x!==sx||fin.x!==fx||__g.SCENES.hq.exitTo[0]!==ex)bad.push('revert');
+  if(bad.length){console.log('FAIL layout editor:',bad.join(', '));fail++}else console.log('ok   layout editor links')}
  __g.SET.time='night';__g.goScene('town',63*16+8,57*16,0);await sl(650);step(16,8);chk('night');
  console.log(fail?fail+' check(s) failed':'all checks passed');process.exit(fail?1:0)},900);
