@@ -3095,7 +3095,9 @@ HOOKS.update.push(()=>{try{plrArt()}catch(e){plrArtFor=player.fr}});
 if(typeof fetch==='function'&&typeof Image!=='undefined'&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol)&&!/[?&]art=0\b/.test(location.search||''))
   fetch('assets/manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(man=>{if(!man||typeof man!=='object')return;
     for(const n in man){const img=new Image();img.onload=()=>{(artReg.img||(artReg.img={}))[n]=img;
-      for(const c of (artReg.m||{})[n]||[])artPaint(c,img);clearTimeout(artReg.ct);artReg.ct=setTimeout(()=>chunkCache.clear(),60)};img.src='assets/'+man[n]}}).catch(()=>{});
+      for(const c of (artReg.m||{})[n]||[])artPaint(c,img);clearTimeout(artReg.ct);artReg.ct=setTimeout(()=>chunkCache.clear(),60)};
+      // revalidate every PNG (Pages caches assets ~10 min, so a redeploy would otherwise keep showing the old art); 304 when unchanged
+      const u='assets/'+man[n];fetch(u,{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>{img.src=URL.createObjectURL(b)}).catch(()=>{img.src=u})}}).catch(()=>{});
 
 /* ================= retention: mailbox, login calendar, season pass, level rewards, story ================= */
 S.mail=Array.isArray(S.mail)?JSON.parse(JSON.stringify(S.mail)):[];S.login=S.login||{last:null,streak:0};S.story=S.story||{ch:0,step:0,done:[]};if(S.lvRewarded==null)S.lvRewarded=S.lv;
