@@ -932,7 +932,7 @@ function makeWater(rx,ry,deep,lotus,reeds){const W=rx*2+12,H=ry*2+12,cx=W>>1,cy=
 {const [c,x]=cv(66,32);for(let xx=0;xx<64;xx+=4){R(x,xx%8?'#A0703E':'#96683A',xx,2,3,28);R(x,'#5E3E22',xx+3,2,1,28);R(x,'#B98452',xx,2,1,28)}
   for(let xx=6;xx<64;xx+=20){R(x,'#4E2F18',xx,0,6,3);R(x,'#4E2F18',xx,29,6,3)}R(x,'#3A2618',63,2,3,28);DEC.push({img:c,x:110*T,y:21*T})}
 {const [c,x]=cv(56,22);R(x,'#6E4A30',0,0,56,22);R(x,'#5A3B25',0,20,56,2);for(let i=0;i<34;i++){const fx=2+(rnd()*51|0),fy=2+(rnd()*16|0);R(x,'#3F9A3E',fx,fy+1,2,2);R(x,['#F26B6B','#F7D154','#F5A3C7','#FFFFFF'][rnd()*4|0],fx,fy,2,1)}
-  DEC.push({img:c,x:56*T+4,y:42*T+3});DEC.push({img:c,x:68*T,y:42*T+3});DEC.push({img:c,x:21*T+4,y:21*T+3})}
+  /* flower-bed decals removed; the canvas is still built so the seeded rnd() sequence (and the rest of the world) stays the same */}
 
 /* ---------- chunked ground renderer ---------- */
 const CH=16,CPX=CH*T,NCX=Math.ceil(MW/CH),NCY=Math.ceil(MH/CH),MAXC=30;
@@ -2834,8 +2834,6 @@ const sunNpc=npc({who:'sun',name:'Sun (Energy)',col:'#F7D154',fr:makeChar({skin:
 sunNpc.home={x:97*T,y:20*T+8};npcs.push(sunNpc);PORT.sun={name:sunNpc.name,col:sunNpc.col,img:sunNpc.fr[0][0]};INT.push({get x(){return sunNpc.x},get y(){return sunNpc.y},r:18,my:-38,label:'คุย',act:()=>talkNPC(sunNpc)});
 for(const f of FEATHERS){if(!blocked(f.x,f.y))continue;outer:for(let r=1;r<6;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){const nx=f.x+dx*T,ny=f.y+dy*T;if(!blocked(nx,ny)){f.x=nx;f.y=ny;break outer}}}
 
-{const bed=(w)=>{const [c,x]=cv(w,14);R(x,'#7A5230',0,2,w,12);R(x,'#5E3E22',0,12,w,2);R(x,'#9C7A50',0,2,w,1);const r=trng(w,7,3);for(let i=3;i<w-2;i+=3){R(x,'#3F8A3A',i,6,1,4);R(x,['#F26B6B','#FFE08A','#F5A3C7','#B7A4FF','#FFFFFF'][(r()*5)|0],i-1,4+(i%2),3,2)}return c};
-  const b2=bed(30),b3=bed(44);for(const [img,tx,ty] of [[b3,89,43],[b2,101,41],[b2,106,41],[b3,112,41],[b2,120,47],[b2,89,59],[b2,120,61]])DEC.push({img,x:tx*T+2,y:ty*T+1})}
 /* ================= economy: daily caps, sell decay, knowledge tokens, team fund ================= */
 function dailyBox(){const d=dayKey(new Date());if(!S.daily||S.daily.d!==d)S.daily={d,c:{},sold:{}};return S.daily}
 const dailyCount=k=>dailyBox().c[k]||0;const dailyInc=k=>{const b=dailyBox();b.c[k]=(b.c[k]||0)+1};
@@ -3546,8 +3544,6 @@ function worldRebuild(){if(WORLD_V===2)return;
   const hydro=NEWO(makeHydro(),118,41,{mm:'#3A7BD5',tb:[116,38,120,41]});mark(SOL,116,39,120,41);mark(OCC,115,37,121,42);
   const cave=NEWO(makeCaveMouth(),9,67);SOL[idx(8,67)]=1;SOL[idx(10,67)]=1;SOL[idx(9,67)]=0;CLIFF[idx(9,67)]=2;CLIFF[idx(9,68)]=4;SOL[idx(9,68)]=0;mark(OCC,5,64,13,70);
   const gh=NEWO(makeGreenhouse(),157,108,{mm:'#9FD4D0',tb:[155,105,159,108]});mark(SOL,155,106,159,108);mark(OCC,152,103,166,114);
-  {const bed=(x0,y0)=>{const [c,g]=cv(56,22);R(g,'#6E4A30',0,0,56,22);R(g,'#5A3B25',0,20,56,2);const r=trng(x0,y0,9);for(let i=0;i<40;i++){const fx=2+(r()*51|0),fy=2+(r()*16|0);R(g,'#3F9A3E',fx,fy+1,2,2);R(g,['#F26B6B','#F7D154','#F5A3C7','#FFFFFF','#B7A4FF'][r()*5|0],fx,fy,2,1)}DEC.push({img:c,x:x0*T,y:y0*T})};
-    for(const [bx,by] of [[148,110],[152,112],[160,111],[148,106]])bed(bx,by)}
   {const [c,g]=cv(14,4*T);for(let j=0;j<4*T;j+=5){R(g,'#5E3E22',0,j+1,14,3);R(g,'#8E5A33',0,j+1,14,1)}for(const rx of [2,10]){R(g,'#4A5258',rx,0,2,4*T);R(g,'#AEB8BE',rx,0,1,4*T)}DEC.push({img:c,x:9*T+1,y:69*T})}/* mine-cart rails out of the crystal cave */
   for(const [x,y] of [[4,70],[14,69],[6,62],[15,60]]){const o={x:x*T+8,y:y*T+12};CRYS_DECOR.push(o)}
   INT.push({x:(DAM.x+5)*T+8,y:(DAM.y+2)*T+4,r:30,my:-40,label:'เขื่อน',act:()=>say([{name:'เขื่อนวายุ',t:'เขื่อนกักน้ำจากทะเลสาบบนยอดเขา ปล่อยน้ำผ่านกังหันในโรงไฟฟ้าพลังน้ำ ไฟฟ้าที่ได้ส่งให้ทั้งเมือง Midway โดยไม่ปล่อยคาร์บอน'}])});
